@@ -4,10 +4,10 @@
 // See README.md for the step-by-step guide to creating the free project.
 // ─────────────────────────────────────────────────────────────────
 export const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.firebasestorage.app",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyCgmgnB_EaGJEeS-MtmyMbH6z4_-72-ah4",
+  authDomain: "nuxo-crm.firebaseapp.com",
+  projectId: "nuxo-crm",
+  storageBucket: "nuxo-crm.firebasestorage.app",
+  messagingSenderId: "433039950885",
+  appId: "1:433039950885:web:722c2849b51e96b395abcc",
 };
