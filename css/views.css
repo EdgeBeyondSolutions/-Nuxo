@@ -52,11 +52,17 @@
 .detail-panel + .detail-panel { margin-top: 16px; }
 .detail-panel-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text-tertiary); margin-bottom: 14px; }
 
-.info-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+.info-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13.5px; }
 .info-row:last-child { border-bottom: none; }
-.info-row label { color: var(--text-tertiary); font-size: 12px; }
-.info-row input, .info-row select { text-align: right; padding: 2px 4px; background: transparent; border: none; }
-.info-row input:focus, .info-row select:focus { background: var(--surface-2); border-radius: var(--radius-sm); }
+.info-row label { color: var(--text-tertiary); font-size: 12px; flex-shrink: 0; }
+.info-row input, .info-row select {
+  text-align: right; padding: 4px 6px; background: transparent;
+  border: 1px solid transparent; border-bottom: 1px dashed var(--border);
+  border-radius: var(--radius-sm); cursor: text; transition: all .15s var(--ease);
+}
+.info-row select { cursor: pointer; }
+.info-row input:hover, .info-row select:hover { border-bottom-color: var(--text-tertiary); background: var(--surface-2); }
+.info-row input:focus, .info-row select:focus { background: var(--surface-2); border: 1px solid var(--accent); border-bottom: 1px solid var(--accent); }
 
 .activity-composer { display: flex; gap: 8px; margin-bottom: 16px; }
 .activity-composer select { width: auto; flex-shrink: 0; padding: 8px 10px; font-size: 12.5px; }
