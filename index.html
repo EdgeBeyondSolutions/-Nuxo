@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Nuxo — CRM de prospectos</title>
+<meta name="description" content="Control de prospectos y pipeline de ventas, sin la lentitud de un CRM tradicional." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/tokens.css" />
+<link rel="stylesheet" href="css/base.css" />
+<link rel="stylesheet" href="css/layout.css" />
+<link rel="stylesheet" href="css/components.css" />
+<link rel="stylesheet" href="css/views.css" />
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <span class="auth-logo-word">Nuxo</span>
+    </div>
+    <p class="auth-tag">Tu pipeline de prospectos, claro y rápido.</p>
+    <div id="auth-error" class="auth-error" hidden></div>
+    <form id="auth-form" class="auth-form">
+      <input id="auth-email" type="email" placeholder="tu@correo.com" autocomplete="email" required />
+      <input id="auth-password" type="password" placeholder="Contraseña" autocomplete="current-password" required minlength="6" />
+      <button type="submit" id="auth-submit" class="btn btn-primary btn-block">Entrar</button>
+    </form>
+    <button id="auth-toggle-mode" class="auth-link">¿Primera vez? Crea tu cuenta</button>
+    <div id="auth-loading" class="auth-loading" hidden>Conectando…</div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="app" class="app" hidden>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="brand">
+        <span class="brand-word">Nuxo</span>
+      </div>
+      <button id="new-btn" class="new-btn" title="Nuevo prospecto (N)">
+        <span class="plus">+</span> Nuevo prospecto
+      </button>
+    </div>
+
+    <nav class="nav" id="main-nav">
+      <button class="nav-item" data-view="dashboard">
+        <span class="nav-icon">📊</span><span>Dashboard</span>
+      </button>
+      <button class="nav-item" data-view="pipeline">
+        <span class="nav-icon">🗂</span><span>Pipeline</span>
+      </button>
+      <button class="nav-item" data-view="prospects">
+        <span class="nav-icon">👤</span><span>Prospectos</span><span class="nav-count" id="count-prospects">0</span>
+      </button>
+      <button class="nav-item" data-view="tasks">
+        <span class="nav-icon">✅</span><span>Tareas</span><span class="nav-count" id="count-tasks">0</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button id="theme-toggle" class="icon-btn" title="Cambiar tema">🌙</button>
+      <button id="logout-btn" class="icon-btn" title="Cerrar sesión">⏻</button>
+    </div>
+  </aside>
+
+  <main class="main" id="main-content">
+    <header class="topbar">
+      <button id="mobile-nav-toggle" class="mobile-nav-toggle">☰</button>
+      <h1 id="view-title" class="view-title">Dashboard</h1>
+      <div class="topbar-search" id="topbar-search-wrap" hidden>
+        <input id="search-input" type="text" placeholder="Buscar… (/)" />
+      </div>
+    </header>
+
+    <div class="view-body" id="view-body">
+      <!-- rendered by JS -->
+    </div>
+  </main>
+
+  <div id="mobile-nav-overlay" class="mobile-nav-overlay" hidden></div>
+</div>
+
+<!-- NEW PROSPECT DRAWER -->
+<div id="prospect-drawer" class="drawer" hidden>
+  <div class="drawer-backdrop" id="prospect-drawer-backdrop"></div>
+  <div class="drawer-panel">
+    <form id="prospect-form" class="entity-form">
+      <input id="new-prospect-name" class="entity-title-input" type="text" placeholder="Nombre del prospecto" required />
+
+      <div class="field-row">
+        <label>Empresa</label>
+        <input id="new-prospect-company" type="text" placeholder="Empresa (opcional)" />
+      </div>
+
+      <div class="field-grid">
+        <div class="field-row">
+          <label>Email</label>
+          <input id="new-prospect-email" type="email" placeholder="correo@ejemplo.com" />
+        </div>
+        <div class="field-row">
+          <label>Teléfono</label>
+          <input id="new-prospect-phone" type="tel" placeholder="+52 …" />
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field-row">
+          <label>Etapa</label>
+          <select id="new-prospect-stage"></select>
+        </div>
+        <div class="field-row">
+          <label>Valor estimado</label>
+          <input id="new-prospect-value" type="number" min="0" placeholder="0" />
+        </div>
+      </div>
+
+      <div class="field-row">
+        <label>Fuente</label>
+        <input id="new-prospect-source" type="text" placeholder="Referido, redes, web…" />
+      </div>
+
+      <div class="drawer-actions">
+        <div></div>
+        <div class="drawer-actions-right">
+          <button type="button" id="prospect-cancel" class="btn btn-ghost">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script type="module" src="js/firebase-config.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

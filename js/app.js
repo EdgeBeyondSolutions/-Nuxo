@@ -1,0 +1,335 @@
+import {
+  auth, onAuthStateChanged, signInWithEmailAndPassword,
+  createUserWithEmailAndPassword, signOut,
+} from './firebase.js';
+import {
+  setUid, seedDefaultsIfNeeded, subscribeStages, subscribeProspects, subscribeActivities, subscribeTasks,
+  createProspect, updateProspect, deleteProspect, createActivity, createTask, updateTask, deleteTask,
+} from './store.js';
+import { state, notify, onStateChange, stageById, prospectById } from './state.js';
+import { renderPipeline } from './views/pipeline.js';
+import { renderProspectsTable } from './views/prospects.js';
+import { renderProspectDetail } from './views/prospectDetail.js';
+import { renderTasks } from './views/tasksView.js';
+import { renderDashboard } from './views/dashboard.js';
+import { escapeHtml, todayISO } from './util.js';
+
+// ───────────────────────── Theme ─────────────────────────
+const THEME_KEY = 'nuxo-theme';
+function applyTheme(t) {
+  if (t === 'system') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('theme-toggle').textContent = resolvedIsDark() ? '☀️' : '🌙';
+}
+function resolvedIsDark() {
+  const t = localStorage.getItem(THEME_KEY) || 'system';
+  if (t === 'dark') return true;
+  if (t === 'light') return false;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+applyTheme(localStorage.getItem(THEME_KEY) || 'system');
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  const next = resolvedIsDark() ? 'light' : 'dark';
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme(next);
+});
+
+// ───────────────────────── Auth ─────────────────────────
+const authScreen = document.getElementById('auth-screen');
+const appEl = document.getElementById('app');
+const authForm = document.getElementById('auth-form');
+const authError = document.getElementById('auth-error');
+const authLoading = document.getElementById('auth-loading');
+const authSubmit = document.getElementById('auth-submit');
+const authToggle = document.getElementById('auth-toggle-mode');
+let authMode = 'signin';
+let unsubscribers = [];
+
+authToggle.addEventListener('click', () => {
+  authMode = authMode === 'signin' ? 'signup' : 'signin';
+  authSubmit.textContent = authMode === 'signin' ? 'Entrar' : 'Crear cuenta';
+  authToggle.textContent = authMode === 'signin' ? '¿Primera vez? Crea tu cuenta' : '¿Ya tienes cuenta? Entrar';
+  authError.hidden = true;
+});
+
+authForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  authError.hidden = true;
+  authLoading.hidden = false;
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  try {
+    if (authMode === 'signin') await signInWithEmailAndPassword(auth, email, password);
+    else await createUserWithEmailAndPassword(auth, email, password);
+  } catch (err) {
+    authError.textContent = translateAuthError(err.code);
+    authError.hidden = false;
+  } finally {
+    authLoading.hidden = true;
+  }
+});
+
+function translateAuthError(code) {
+  const map = {
+    'auth/invalid-credential': 'Correo o contraseña incorrectos.',
+    'auth/user-not-found': 'No existe una cuenta con ese correo.',
+    'auth/wrong-password': 'Contraseña incorrecta.',
+    'auth/email-already-in-use': 'Ya existe una cuenta con ese correo.',
+    'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres.',
+    'auth/invalid-email': 'Correo inválido.',
+  };
+  return map[code] || 'Algo salió mal. Intenta de nuevo.';
+}
+
+document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+
+onAuthStateChanged(auth, (user) => {
+  unsubscribers.forEach((u) => u());
+  unsubscribers = [];
+  if (user) {
+    authScreen.hidden = true;
+    appEl.hidden = false;
+    setUid(user.uid);
+    boot();
+  } else {
+    appEl.hidden = true;
+    authScreen.hidden = false;
+    state.stages = []; state.prospects = []; state.activities = []; state.tasks = [];
+  }
+});
+
+function boot() {
+  let stagesLoaded = false;
+  unsubscribers.push(subscribeStages(async (stages) => {
+    state.stages = stages;
+    if (!stagesLoaded) {
+      stagesLoaded = true;
+      await seedDefaultsIfNeeded(stages);
+    }
+    render();
+  }));
+  unsubscribers.push(subscribeProspects((prospects) => { state.prospects = prospects; render(); }));
+  unsubscribers.push(subscribeActivities((activities) => { state.activities = activities; render(); }));
+  unsubscribers.push(subscribeTasks((tasks) => { state.tasks = tasks; render(); }));
+}
+
+// ───────────────────────── Navigation ─────────────────────────
+const viewTitles = { dashboard: 'Dashboard', pipeline: 'Pipeline', prospects: 'Prospectos', tasks: 'Tareas' };
+
+document.getElementById('main-nav').addEventListener('click', (e) => {
+  const btn = e.target.closest('.nav-item');
+  if (!btn) return;
+  state.view = btn.dataset.view;
+  state.selectedProspectId = null;
+  closeMobileNav();
+  render();
+});
+
+document.getElementById('search-input').addEventListener('input', (e) => {
+  state.search = e.target.value;
+  render();
+});
+
+const sidebar = document.getElementById('sidebar');
+const mobileOverlay = document.getElementById('mobile-nav-overlay');
+document.getElementById('mobile-nav-toggle').addEventListener('click', () => {
+  sidebar.classList.add('open');
+  mobileOverlay.hidden = false;
+});
+mobileOverlay.addEventListener('click', closeMobileNav);
+function closeMobileNav() { sidebar.classList.remove('open'); mobileOverlay.hidden = true; }
+
+// ───────────────────────── Render ─────────────────────────
+function render() {
+  document.querySelectorAll('.nav-item').forEach((b) => b.classList.toggle('active', b.dataset.view === state.view));
+
+  const today = todayISO();
+  document.getElementById('count-prospects').textContent = state.prospects.length;
+  document.getElementById('count-tasks').textContent = state.tasks.filter((t) => !t.done && t.dueDate && t.dueDate <= today).length;
+
+  const searchWrap = document.getElementById('topbar-search-wrap');
+  searchWrap.hidden = !(state.view === 'pipeline' || state.view === 'prospects');
+
+  document.getElementById('view-title').textContent = state.view === 'prospects' && state.selectedProspectId
+    ? '' : viewTitles[state.view];
+
+  const body = document.getElementById('view-body');
+  switch (state.view) {
+    case 'dashboard': body.innerHTML = renderDashboard(); break;
+    case 'pipeline': body.innerHTML = renderPipeline(); attachDragAndDrop(); break;
+    case 'prospects':
+      body.innerHTML = state.selectedProspectId ? renderProspectDetail(state.selectedProspectId) : renderProspectsTable();
+      break;
+    case 'tasks': body.innerHTML = renderTasks(); break;
+  }
+}
+onStateChange(render);
+
+// ───────────────────────── Body click delegation ─────────────────────────
+document.getElementById('view-body').addEventListener('click', (e) => {
+  const openProspect = e.target.closest('[data-action="open-prospect"]');
+  if (openProspect) { state.view = 'prospects'; state.selectedProspectId = openProspect.dataset.id; render(); return; }
+
+  const back = e.target.closest('[data-action="back-to-prospects"]');
+  if (back) { state.selectedProspectId = null; render(); return; }
+
+  const newProspect = e.target.closest('[data-action="new-prospect"]');
+  if (newProspect) { openProspectDrawer(); return; }
+
+  const delProspect = e.target.closest('[data-action="delete-prospect"]');
+  if (delProspect) {
+    if (!confirm('¿Eliminar este prospecto? Esto no se puede deshacer.')) return;
+    deleteProspect(delProspect.dataset.id).then(() => {
+      state.selectedProspectId = null;
+      render();
+      showToast('Prospecto eliminado');
+    });
+    return;
+  }
+
+  const toggleTask = e.target.closest('[data-action="toggle-task"]');
+  if (toggleTask) {
+    const task = state.tasks.find((t) => t.id === toggleTask.dataset.id);
+    if (task) updateTask(task.id, { done: !task.done });
+    return;
+  }
+
+  const addActivity = e.target.closest('[data-action="add-activity"]');
+  if (addActivity) {
+    const type = document.getElementById('activity-type').value;
+    const content = document.getElementById('activity-content').value.trim();
+    if (!content) return;
+    createActivity({ prospectId: addActivity.dataset.id, type, content });
+    document.getElementById('activity-content').value = '';
+    return;
+  }
+
+  const addTask = e.target.closest('[data-action="add-task"]');
+  if (addTask) {
+    const title = document.getElementById('task-title-input').value.trim();
+    const dueDate = document.getElementById('task-due-input').value;
+    if (!title) return;
+    createTask({ prospectId: addTask.dataset.id, title, dueDate });
+    document.getElementById('task-title-input').value = '';
+    document.getElementById('task-due-input').value = '';
+    return;
+  }
+
+  const th = e.target.closest('th[data-sort]');
+  if (th) {
+    const key = th.dataset.sort;
+    if (state.sortBy === key) state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+    else { state.sortBy = key; state.sortDir = 'asc'; }
+    render();
+    return;
+  }
+});
+
+document.getElementById('view-body').addEventListener('change', (e) => {
+  const filterStage = e.target.closest('#filter-stage');
+  if (filterStage) { state.stageFilter = filterStage.value; render(); return; }
+
+  const filterSource = e.target.closest('#filter-source');
+  if (filterSource) { state.sourceFilter = filterSource.value; render(); return; }
+
+  const taskFilter = e.target.closest('#task-filter');
+  if (taskFilter) { state.taskFilter = taskFilter.value; render(); return; }
+
+  const field = e.target.closest('[data-field]');
+  if (field) {
+    const id = field.dataset.id;
+    const key = field.dataset.field;
+    const value = key === 'estimatedValue' ? Number(field.value) || 0 : field.value;
+    updateProspect(id, { [key]: value }).then(() => showToast('Guardado'));
+  }
+});
+
+document.getElementById('view-body').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && e.target.matches('#activity-content')) {
+    e.target.closest('.activity-composer').querySelector('[data-action="add-activity"]').click();
+  }
+  if (e.key === 'Enter' && e.target.matches('#task-title-input')) {
+    e.target.closest('.activity-composer').querySelector('[data-action="add-task"]').click();
+  }
+});
+
+// ───────────────────────── New prospect drawer ─────────────────────────
+const drawer = document.getElementById('prospect-drawer');
+const prospectForm = document.getElementById('prospect-form');
+const nameInput = document.getElementById('new-prospect-name');
+
+function openProspectDrawer() {
+  prospectForm.reset();
+  const stageSelect = document.getElementById('new-prospect-stage');
+  stageSelect.innerHTML = state.stages.map((s) => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+  drawer.hidden = false;
+  setTimeout(() => nameInput.focus(), 30);
+}
+function closeDrawer() { drawer.hidden = true; }
+document.getElementById('prospect-drawer-backdrop').addEventListener('click', closeDrawer);
+document.getElementById('prospect-cancel').addEventListener('click', closeDrawer);
+
+prospectForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = {
+    name: nameInput.value.trim(),
+    company: document.getElementById('new-prospect-company').value.trim(),
+    email: document.getElementById('new-prospect-email').value.trim(),
+    phone: document.getElementById('new-prospect-phone').value.trim(),
+    source: document.getElementById('new-prospect-source').value.trim(),
+    stageId: document.getElementById('new-prospect-stage').value,
+    estimatedValue: Number(document.getElementById('new-prospect-value').value) || 0,
+  };
+  if (!data.name) return;
+  await createProspect(data);
+  closeDrawer();
+  showToast('Prospecto agregado');
+});
+
+document.getElementById('new-btn').addEventListener('click', openProspectDrawer);
+
+// ───────────────────────── Keyboard shortcuts ─────────────────────────
+document.addEventListener('keydown', (e) => {
+  const tag = document.activeElement.tagName;
+  const typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+  if (e.key === 'Escape') { closeDrawer(); closeMobileNav(); return; }
+  if (typing) return;
+  if (e.key === 'n' || e.key === 'N') { e.preventDefault(); openProspectDrawer(); }
+  if (e.key === '/') { e.preventDefault(); document.getElementById('search-input').focus(); }
+});
+
+// ───────────────────────── Drag & drop (pipeline) ─────────────────────────
+function attachDragAndDrop() {
+  document.querySelectorAll('.prospect-card').forEach((card) => {
+    card.addEventListener('dragstart', () => card.classList.add('dragging'));
+    card.addEventListener('dragend', () => card.classList.remove('dragging'));
+  });
+  document.querySelectorAll('.board-column-body').forEach((col) => {
+    col.addEventListener('dragover', (e) => { e.preventDefault(); col.classList.add('drag-over'); });
+    col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+    col.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      col.classList.remove('drag-over');
+      const dragging = document.querySelector('.prospect-card.dragging');
+      if (!dragging) return;
+      const id = dragging.dataset.id;
+      const newStageId = col.dataset.stage;
+      const prospect = prospectById(id);
+      if (!prospect || prospect.stageId === newStageId) return;
+      const oldStage = stageById(prospect.stageId);
+      const newStage = stageById(newStageId);
+      await updateProspect(id, { stageId: newStageId });
+      await createActivity({ prospectId: id, type: 'stage_change', content: `Movido de "${oldStage?.name || '—'}" a "${newStage?.name}"` });
+    });
+  });
+}
+
+// ───────────────────────── Toast ─────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.hidden = true; }, 2200);
+}
