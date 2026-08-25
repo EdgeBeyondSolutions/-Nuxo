@@ -47,8 +47,8 @@ let unsubscribers = [];
 
 authToggle.addEventListener('click', () => {
   authMode = authMode === 'signin' ? 'signup' : 'signin';
-  authSubmit.textContent = authMode === 'signin' ? 'Entrar' : 'Crear cuenta';
-  authToggle.textContent = authMode === 'signin' ? '¿Primera vez? Crea tu cuenta' : '¿Ya tienes cuenta? Entrar';
+  authSubmit.textContent = authMode === 'signin' ? 'Sign In' : 'Create Account';
+  authToggle.textContent = authMode === 'signin' ? 'First time here? Create an account' : 'Already have an account? Sign in';
   authError.hidden = true;
 });
 
@@ -71,14 +71,14 @@ authForm.addEventListener('submit', async (e) => {
 
 function translateAuthError(code) {
   const map = {
-    'auth/invalid-credential': 'Correo o contraseña incorrectos.',
-    'auth/user-not-found': 'No existe una cuenta con ese correo.',
-    'auth/wrong-password': 'Contraseña incorrecta.',
-    'auth/email-already-in-use': 'Ya existe una cuenta con ese correo.',
-    'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres.',
-    'auth/invalid-email': 'Correo inválido.',
+    'auth/invalid-credential': 'Incorrect email or password.',
+    'auth/user-not-found': 'No account exists with that email.',
+    'auth/wrong-password': 'Incorrect password.',
+    'auth/email-already-in-use': 'An account with that email already exists.',
+    'auth/weak-password': 'Password must be at least 6 characters.',
+    'auth/invalid-email': 'Invalid email address.',
   };
-  return map[code] || 'Algo salió mal. Intenta de nuevo.';
+  return map[code] || 'Something went wrong. Please try again.';
 }
 
 document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
@@ -114,7 +114,7 @@ function boot() {
 }
 
 // ───────────────────────── Navigation ─────────────────────────
-const viewTitles = { dashboard: 'Dashboard', pipeline: 'Pipeline', prospects: 'Prospectos', tasks: 'Tareas' };
+const viewTitles = { dashboard: 'Dashboard', pipeline: 'Pipeline', prospects: 'Prospects', tasks: 'Tasks' };
 
 document.getElementById('main-nav').addEventListener('click', (e) => {
   const btn = e.target.closest('.nav-item');
@@ -178,11 +178,11 @@ document.getElementById('view-body').addEventListener('click', (e) => {
 
   const delProspect = e.target.closest('[data-action="delete-prospect"]');
   if (delProspect) {
-    if (!confirm('¿Eliminar este prospecto? Esto no se puede deshacer.')) return;
+    if (!confirm('Delete this prospect? This cannot be undone.')) return;
     deleteProspect(delProspect.dataset.id).then(() => {
       state.selectedProspectId = null;
       render();
-      showToast('Prospecto eliminado');
+      showToast('Prospect deleted');
     });
     return;
   }
@@ -240,7 +240,7 @@ document.getElementById('view-body').addEventListener('change', (e) => {
     const id = field.dataset.id;
     const key = field.dataset.field;
     const value = key === 'estimatedValue' ? Number(field.value) || 0 : field.value;
-    updateProspect(id, { [key]: value }).then(() => showToast('Guardado'));
+    updateProspect(id, { [key]: value }).then(() => showToast('Saved'));
   }
 });
 
@@ -256,14 +256,14 @@ document.getElementById('view-body').addEventListener('keydown', (e) => {
 // ───────────────────────── New prospect drawer ─────────────────────────
 const drawer = document.getElementById('prospect-drawer');
 const prospectForm = document.getElementById('prospect-form');
-const nameInput = document.getElementById('new-prospect-name');
+const firstNameInput = document.getElementById('new-prospect-first-name');
 
 function openProspectDrawer() {
   prospectForm.reset();
   const stageSelect = document.getElementById('new-prospect-stage');
   stageSelect.innerHTML = state.stages.map((s) => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
   drawer.hidden = false;
-  setTimeout(() => nameInput.focus(), 30);
+  setTimeout(() => firstNameInput.focus(), 30);
 }
 function closeDrawer() { drawer.hidden = true; }
 document.getElementById('prospect-drawer-backdrop').addEventListener('click', closeDrawer);
@@ -272,18 +272,23 @@ document.getElementById('prospect-cancel').addEventListener('click', closeDrawer
 prospectForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const data = {
-    name: nameInput.value.trim(),
+    firstName: firstNameInput.value.trim(),
+    lastName: document.getElementById('new-prospect-last-name').value.trim(),
     company: document.getElementById('new-prospect-company').value.trim(),
     email: document.getElementById('new-prospect-email').value.trim(),
-    phone: document.getElementById('new-prospect-phone').value.trim(),
+    mobile: document.getElementById('new-prospect-mobile').value.trim(),
+    whatsapp: document.getElementById('new-prospect-whatsapp').value.trim(),
+    website: document.getElementById('new-prospect-website').value.trim(),
+    facebook: document.getElementById('new-prospect-facebook').value.trim(),
+    instagram: document.getElementById('new-prospect-instagram').value.trim(),
     source: document.getElementById('new-prospect-source').value.trim(),
     stageId: document.getElementById('new-prospect-stage').value,
     estimatedValue: Number(document.getElementById('new-prospect-value').value) || 0,
   };
-  if (!data.name) return;
+  if (!data.firstName) return;
   await createProspect(data);
   closeDrawer();
-  showToast('Prospecto agregado');
+  showToast('Prospect added');
 });
 
 document.getElementById('new-btn').addEventListener('click', openProspectDrawer);
@@ -319,7 +324,7 @@ function attachDragAndDrop() {
       const oldStage = stageById(prospect.stageId);
       const newStage = stageById(newStageId);
       await updateProspect(id, { stageId: newStageId });
-      await createActivity({ prospectId: id, type: 'stage_change', content: `Movido de "${oldStage?.name || '—'}" a "${newStage?.name}"` });
+      await createActivity({ prospectId: id, type: 'stage_change', content: `Moved from "${oldStage?.name || '—'}" to "${newStage?.name}"` });
     });
   });
 }

@@ -4,13 +4,13 @@ import {
 } from './firebase.js';
 
 const DEFAULT_STAGES = [
-  { name: 'Nuevo', color: '#64748B' },
-  { name: 'Contactado', color: '#3654F4' },
-  { name: 'Calificado', color: '#8B5CF6' },
-  { name: 'Propuesta', color: '#E08A1E' },
-  { name: 'Negociación', color: '#EC4899' },
-  { name: 'Ganado', color: '#0E9F6E', isWon: true },
-  { name: 'Perdido', color: '#E23E4E', isLost: true },
+  { name: 'New', color: '#64748B' },
+  { name: 'Contacted', color: '#3654F4' },
+  { name: 'Qualified', color: '#8B5CF6' },
+  { name: 'Proposal', color: '#E08A1E' },
+  { name: 'Negotiation', color: '#EC4899' },
+  { name: 'Won', color: '#0E9F6E', isWon: true },
+  { name: 'Lost', color: '#E23E4E', isLost: true },
 ];
 
 let uid = null;
@@ -51,7 +51,8 @@ export function subscribeTasks(cb) {
 
 export function createProspect(data) {
   return addDoc(col('prospects'), {
-    name: '', company: '', email: '', phone: '', source: '', stageId: '',
+    firstName: '', lastName: '', company: '', email: '', mobile: '', whatsapp: '',
+    website: '', facebook: '', instagram: '', source: '', stageId: '',
     estimatedValue: 0, createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
     ...data,
   });

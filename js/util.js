@@ -26,18 +26,22 @@ export function formatDue(dueISO) {
   if (!dueISO) return '';
   const [y, m, d] = dueISO.split('-').map(Number);
   const date = new Date(y, m - 1, d);
-  return date.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+  return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
 }
 
 export function formatDateTime(ts) {
   if (!ts) return '';
   const date = ts.toDate ? ts.toDate() : new Date(ts);
-  return date.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
 export function formatCurrency(n) {
   const v = Number(n) || 0;
-  return v.toLocaleString('es-MX', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  return v.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+}
+
+export function fullName(p) {
+  return [p.firstName, p.lastName].filter(Boolean).join(' ') || 'Unnamed';
 }
 
 export function debounce(fn, ms) {

@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Nuxo — CRM de prospectos</title>
-<meta name="description" content="Control de prospectos y pipeline de ventas, sin la lentitud de un CRM tradicional." />
+<title>Nuxo — Prospect CRM</title>
+<meta name="description" content="Track prospects and your sales pipeline, without the lag of a traditional CRM." />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,15 +25,15 @@
     <div class="auth-logo">
       <span class="auth-logo-word">Nuxo</span>
     </div>
-    <p class="auth-tag">Tu pipeline de prospectos, claro y rápido.</p>
+    <p class="auth-tag">Your prospect pipeline, clear and fast.</p>
     <div id="auth-error" class="auth-error" hidden></div>
     <form id="auth-form" class="auth-form">
-      <input id="auth-email" type="email" placeholder="tu@correo.com" autocomplete="email" required />
-      <input id="auth-password" type="password" placeholder="Contraseña" autocomplete="current-password" required minlength="6" />
-      <button type="submit" id="auth-submit" class="btn btn-primary btn-block">Entrar</button>
+      <input id="auth-email" type="email" placeholder="you@email.com" autocomplete="email" required />
+      <input id="auth-password" type="password" placeholder="Password" autocomplete="current-password" required minlength="6" />
+      <button type="submit" id="auth-submit" class="btn btn-primary btn-block">Sign In</button>
     </form>
-    <button id="auth-toggle-mode" class="auth-link">¿Primera vez? Crea tu cuenta</button>
-    <div id="auth-loading" class="auth-loading" hidden>Conectando…</div>
+    <button id="auth-toggle-mode" class="auth-link">First time here? Create an account</button>
+    <div id="auth-loading" class="auth-loading" hidden>Connecting…</div>
   </div>
 </div>
 
@@ -45,8 +45,8 @@
       <div class="brand">
         <span class="brand-word">Nuxo</span>
       </div>
-      <button id="new-btn" class="new-btn" title="Nuevo prospecto (N)">
-        <span class="plus">+</span> Nuevo prospecto
+      <button id="new-btn" class="new-btn" title="New Prospect (N)">
+        <span class="plus">+</span> New Prospect
       </button>
     </div>
 
@@ -58,16 +58,16 @@
         <span class="nav-icon">🗂</span><span>Pipeline</span>
       </button>
       <button class="nav-item" data-view="prospects">
-        <span class="nav-icon">👤</span><span>Prospectos</span><span class="nav-count" id="count-prospects">0</span>
+        <span class="nav-icon">👤</span><span>Prospects</span><span class="nav-count" id="count-prospects">0</span>
       </button>
       <button class="nav-item" data-view="tasks">
-        <span class="nav-icon">✅</span><span>Tareas</span><span class="nav-count" id="count-tasks">0</span>
+        <span class="nav-icon">✅</span><span>Tasks</span><span class="nav-count" id="count-tasks">0</span>
       </button>
     </nav>
 
     <div class="sidebar-bottom">
-      <button id="theme-toggle" class="icon-btn" title="Cambiar tema">🌙</button>
-      <button id="logout-btn" class="icon-btn" title="Cerrar sesión">⏻</button>
+      <button id="theme-toggle" class="icon-btn" title="Toggle theme">🌙</button>
+      <button id="logout-btn" class="icon-btn" title="Sign out">⏻</button>
     </div>
   </aside>
 
@@ -76,7 +76,7 @@
       <button id="mobile-nav-toggle" class="mobile-nav-toggle">☰</button>
       <h1 id="view-title" class="view-title">Dashboard</h1>
       <div class="topbar-search" id="topbar-search-wrap" hidden>
-        <input id="search-input" type="text" placeholder="Buscar… (/)" />
+        <input id="search-input" type="text" placeholder="Search… (/)" />
       </div>
     </header>
 
@@ -93,45 +93,76 @@
   <div class="drawer-backdrop" id="prospect-drawer-backdrop"></div>
   <div class="drawer-panel">
     <form id="prospect-form" class="entity-form">
-      <input id="new-prospect-name" class="entity-title-input" type="text" placeholder="Nombre del prospecto" required />
+      <div class="field-grid">
+        <div class="field-row">
+          <label>First Name</label>
+          <input id="new-prospect-first-name" type="text" placeholder="First name" required />
+        </div>
+        <div class="field-row">
+          <label>Last Name</label>
+          <input id="new-prospect-last-name" type="text" placeholder="Last name" />
+        </div>
+      </div>
 
       <div class="field-row">
-        <label>Empresa</label>
-        <input id="new-prospect-company" type="text" placeholder="Empresa (opcional)" />
+        <label>Company</label>
+        <input id="new-prospect-company" type="text" placeholder="Company (optional)" />
       </div>
 
       <div class="field-grid">
         <div class="field-row">
           <label>Email</label>
-          <input id="new-prospect-email" type="email" placeholder="correo@ejemplo.com" />
+          <input id="new-prospect-email" type="email" placeholder="email@example.com" />
         </div>
         <div class="field-row">
-          <label>Teléfono</label>
-          <input id="new-prospect-phone" type="tel" placeholder="+52 …" />
+          <label>Mobile</label>
+          <input id="new-prospect-mobile" type="tel" placeholder="+1 …" />
         </div>
       </div>
 
       <div class="field-grid">
         <div class="field-row">
-          <label>Etapa</label>
+          <label>WhatsApp</label>
+          <input id="new-prospect-whatsapp" type="tel" placeholder="+1 …" />
+        </div>
+        <div class="field-row">
+          <label>Website</label>
+          <input id="new-prospect-website" type="text" placeholder="example.com" />
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field-row">
+          <label>Facebook</label>
+          <input id="new-prospect-facebook" type="text" placeholder="Profile or page" />
+        </div>
+        <div class="field-row">
+          <label>Instagram</label>
+          <input id="new-prospect-instagram" type="text" placeholder="@handle" />
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field-row">
+          <label>Stage</label>
           <select id="new-prospect-stage"></select>
         </div>
         <div class="field-row">
-          <label>Valor estimado</label>
+          <label>Estimated Value</label>
           <input id="new-prospect-value" type="number" min="0" placeholder="0" />
         </div>
       </div>
 
       <div class="field-row">
-        <label>Fuente</label>
-        <input id="new-prospect-source" type="text" placeholder="Referido, redes, web…" />
+        <label>Source</label>
+        <input id="new-prospect-source" type="text" placeholder="Referral, social, web…" />
       </div>
 
       <div class="drawer-actions">
         <div></div>
         <div class="drawer-actions-right">
-          <button type="button" id="prospect-cancel" class="btn btn-ghost">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Guardar</button>
+          <button type="button" id="prospect-cancel" class="btn btn-ghost">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
         </div>
       </div>
     </form>

@@ -46,7 +46,8 @@ export function filteredProspects() {
     if (state.stageFilter && p.stageId !== state.stageFilter) return false;
     if (state.sourceFilter && p.source !== state.sourceFilter) return false;
     if (!term) return true;
-    return (p.name || '').toLowerCase().includes(term)
+    return (p.firstName || '').toLowerCase().includes(term)
+      || (p.lastName || '').toLowerCase().includes(term)
       || (p.company || '').toLowerCase().includes(term)
       || (p.email || '').toLowerCase().includes(term);
   });

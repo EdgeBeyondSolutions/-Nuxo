@@ -1,9 +1,9 @@
 import { state, filteredProspects } from '../state.js';
-import { escapeHtml, formatCurrency } from '../util.js';
+import { escapeHtml, formatCurrency, fullName } from '../util.js';
 
 export function renderPipeline() {
   if (state.stages.length === 0) {
-    return `<div class="empty-state"><div class="empty-state-icon">🗂</div><div class="empty-state-title">Preparando tu pipeline…</div></div>`;
+    return `<div class="empty-state"><div class="empty-state-icon">🗂</div><div class="empty-state-title">Setting up your pipeline…</div></div>`;
   }
   const prospects = filteredProspects();
   const columns = state.stages.map((stage) => {
@@ -29,7 +29,7 @@ export function renderPipeline() {
 function prospectCard(p) {
   return `
     <div class="prospect-card" draggable="true" data-id="${p.id}" data-action="open-prospect">
-      <div class="prospect-card-name">${escapeHtml(p.name || 'Sin nombre')}</div>
+      <div class="prospect-card-name">${escapeHtml(fullName(p))}</div>
       ${p.company ? `<div class="prospect-card-company">${escapeHtml(p.company)}</div>` : ''}
       <div class="prospect-card-meta">
         ${Number(p.estimatedValue) > 0 ? `<span class="tag tag-value">${formatCurrency(p.estimatedValue)}</span>` : ''}

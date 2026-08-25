@@ -17,13 +17,13 @@ export function renderDashboard() {
 
   return `
     <div class="stat-grid">
-      <div class="stat-card"><div class="stat-card-label">Prospectos totales</div><div class="stat-card-value">${total}</div></div>
-      <div class="stat-card"><div class="stat-card-label">Valor en pipeline</div><div class="stat-card-value accent">${formatCurrency(pipelineValue)}</div></div>
-      <div class="stat-card"><div class="stat-card-label">Ganados este mes</div><div class="stat-card-value success">${wonThisMonth.length} · ${formatCurrency(wonValue)}</div></div>
-      <div class="stat-card"><div class="stat-card-label">Tareas vencidas</div><div class="stat-card-value ${overdueTasks ? 'danger' : ''}">${overdueTasks}</div></div>
+      <div class="stat-card"><div class="stat-card-label">Total Prospects</div><div class="stat-card-value">${total}</div></div>
+      <div class="stat-card"><div class="stat-card-label">Pipeline Value</div><div class="stat-card-value accent">${formatCurrency(pipelineValue)}</div></div>
+      <div class="stat-card"><div class="stat-card-label">Won This Month</div><div class="stat-card-value success">${wonThisMonth.length} · ${formatCurrency(wonValue)}</div></div>
+      <div class="stat-card"><div class="stat-card-label">Overdue Tasks</div><div class="stat-card-value ${overdueTasks ? 'danger' : ''}">${overdueTasks}</div></div>
     </div>
 
-    <div class="section-heading">Prospectos por etapa</div>
+    <div class="section-heading">Prospects by Stage</div>
     <div class="stage-bars">
       ${state.stages.map((s) => {
         const count = state.prospects.filter((p) => p.stageId === s.id).length;
