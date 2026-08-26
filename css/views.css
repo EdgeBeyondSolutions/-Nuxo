@@ -42,6 +42,8 @@
 .detail-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; gap: 12px; }
 .detail-name { font-size: 22px; }
 .detail-company { color: var(--text-secondary); font-size: 13.5px; margin-top: 4px; }
+.detail-company a { color: var(--accent); text-decoration: none; }
+.detail-company a:hover { text-decoration: underline; }
 .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 13px; margin-bottom: 14px; font-weight: 600; }
 .back-link:hover { color: var(--accent); }
 

@@ -10,8 +10,8 @@ import {
 import { state, notify, onStateChange, stageById, contactById, companyById } from './state.js?v=1';
 import { renderPipeline } from './views/pipeline.js?v=1';
 import { renderContactsTable } from './views/contacts.js?v=1';
-import { renderContactDetail } from './views/contactDetail.js?v=2';
-import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=3';
+import { renderContactDetail } from './views/contactDetail.js?v=3';
+import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=4';
 import { renderTasks } from './views/tasksView.js?v=1';
 import { renderDashboard } from './views/dashboard.js?v=1';
 import { escapeHtml, todayISO } from './util.js?v=1';
@@ -117,7 +117,7 @@ function boot() {
 }
 
 // ───────────────────────── Navigation ─────────────────────────
-const viewTitles = { dashboard: 'Dashboard', pipeline: 'Pipeline', contacts: 'Contacts', companies: 'Companies', tasks: 'Tasks' };
+const viewTitles = { dashboard: 'Dashboard', pipeline: 'Pipeline', contacts: 'Contacts', companies: 'Accounts', tasks: 'Tasks' };
 
 document.getElementById('main-nav').addEventListener('click', (e) => {
   const btn = e.target.closest('.nav-item');
@@ -212,7 +212,7 @@ document.getElementById('view-body').addEventListener('click', (e) => {
 
   const delCompany = e.target.closest('[data-action="delete-company"]');
   if (delCompany) {
-    if (!confirm('Delete this company? It will be unlinked from all contacts.')) return;
+    if (!confirm('Delete this account? It will be unlinked from all contacts.')) return;
     const companyId = delCompany.dataset.id;
     const linked = state.contacts.filter((c) => (c.companyIds || []).includes(companyId));
     Promise.all(linked.map((c) => updateContact(c.id, { companyIds: c.companyIds.filter((id) => id !== companyId) })))
@@ -220,7 +220,7 @@ document.getElementById('view-body').addEventListener('click', (e) => {
       .then(() => {
         state.selectedCompanyId = null;
         render();
-        showToast('Company deleted');
+        showToast('Account deleted');
       });
     return;
   }
@@ -402,7 +402,7 @@ companyForm.addEventListener('submit', async (e) => {
     await updateContact(pendingLinkContactId, { companyIds: ids });
   }
   closeCompanyModal();
-  showToast('Company added');
+  showToast('Account added');
 });
 
 // ───────────────────────── Keyboard shortcuts ─────────────────────────

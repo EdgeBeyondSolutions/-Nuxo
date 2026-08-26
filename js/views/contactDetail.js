@@ -83,7 +83,7 @@ export function renderContactDetail(id) {
         </div>
 
         <div class="detail-panel">
-          <div class="detail-panel-title">Companies</div>
+          <div class="detail-panel-title">Accounts</div>
           ${linkedCompanies.length ? `
             <div class="company-chip-list">
               ${linkedCompanies.map((co) => `
@@ -93,12 +93,12 @@ export function renderContactDetail(id) {
                 </span>
               `).join('')}
             </div>
-          ` : `<div class="empty-state-desc" style="padding:4px 0 12px;">No companies linked.</div>`}
+          ` : `<div class="empty-state-desc" style="padding:4px 0 12px;">No accounts linked.</div>`}
           <div class="activity-composer">
             <select id="company-select" data-id="${c.id}">
-              <option value="">Select a company…</option>
+              <option value="">Select an account…</option>
               ${availableCompanies.map((co) => `<option value="${co.id}">${escapeHtml(co.name)}</option>`).join('')}
-              <option value="__new__">+ New company…</option>
+              <option value="__new__">+ New account…</option>
             </select>
             <button class="btn btn-primary btn-sm" data-action="link-company" data-id="${c.id}">Add</button>
           </div>
