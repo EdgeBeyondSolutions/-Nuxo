@@ -10,8 +10,8 @@ import {
 import { state, notify, onStateChange, stageById, contactById, companyById } from './state.js?v=1';
 import { renderPipeline } from './views/pipeline.js?v=1';
 import { renderContactsTable } from './views/contacts.js?v=1';
-import { renderContactDetail } from './views/contactDetail.js?v=3';
-import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=8';
+import { renderContactDetail } from './views/contactDetail.js?v=4';
+import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=10';
 import { renderTasks } from './views/tasksView.js?v=1';
 import { renderDashboard } from './views/dashboard.js?v=1';
 import { escapeHtml, todayISO } from './util.js?v=2';
@@ -117,7 +117,7 @@ function boot() {
 }
 
 // ───────────────────────── Navigation ─────────────────────────
-const viewTitles = { dashboard: 'Dashboard', pipeline: 'Pipeline', contacts: 'Contacts', companies: 'Accounts', tasks: 'Tasks' };
+const viewTitles = { dashboard: 'Dashboard', pipeline: 'Pipeline', contacts: 'Contacts', companies: 'Companies', tasks: 'Tasks' };
 
 document.getElementById('main-nav').addEventListener('click', (e) => {
   const btn = e.target.closest('.nav-item');
@@ -212,7 +212,7 @@ document.getElementById('view-body').addEventListener('click', (e) => {
 
   const delCompany = e.target.closest('[data-action="delete-company"]');
   if (delCompany) {
-    if (!confirm('Delete this account? It will be unlinked from all contacts.')) return;
+    if (!confirm('Delete this company? It will be unlinked from all contacts.')) return;
     const companyId = delCompany.dataset.id;
     const linked = state.contacts.filter((c) => (c.companyIds || []).includes(companyId));
     Promise.all(linked.map((c) => updateContact(c.id, { companyIds: c.companyIds.filter((id) => id !== companyId) })))
@@ -220,7 +220,7 @@ document.getElementById('view-body').addEventListener('click', (e) => {
       .then(() => {
         state.selectedCompanyId = null;
         render();
-        showToast('Account deleted');
+        showToast('Company deleted');
       });
     return;
   }
@@ -431,7 +431,9 @@ companyForm.addEventListener('submit', async (e) => {
     facebook: document.getElementById('new-company-facebook').value.trim(),
     instagram: document.getElementById('new-company-instagram').value.trim(),
     street: document.getElementById('new-company-street').value.trim(),
+    street2: document.getElementById('new-company-street2').value.trim(),
     city: document.getElementById('new-company-city').value.trim(),
+    state: document.getElementById('new-company-state').value.trim(),
     postalCode: document.getElementById('new-company-postal-code').value.trim(),
     country: document.getElementById('new-company-country').value.trim(),
   };
@@ -443,7 +445,7 @@ companyForm.addEventListener('submit', async (e) => {
     await updateContact(pendingLinkContactId, { companyIds: ids });
   }
   closeCompanyModal();
-  showToast('Account added');
+  showToast('Company added');
 });
 
 // ───────────────────────── Keyboard shortcuts ─────────────────────────

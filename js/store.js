@@ -74,7 +74,7 @@ export function deleteContact(id) {
 export function createCompany(data) {
   return addDoc(col('companies'), {
     name: '', website: '', phone: '', whatsapp: '', email: '', industry: '',
-    facebook: '', instagram: '', street: '', city: '', country: '', postalCode: '',
+    facebook: '', instagram: '', street: '', street2: '', city: '', state: '', country: '', postalCode: '',
     snapshotData: '', snapshotName: '', snapshotUploadedAt: '',
     createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
     ...data,
