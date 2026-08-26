@@ -1,7 +1,7 @@
 import {
   db, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot,
   query, orderBy, serverTimestamp, writeBatch,
-} from './firebase.js';
+} from './firebase.js?v=1';
 
 const DEFAULT_STAGES = [
   { name: 'New', color: '#64748B' },
@@ -34,8 +34,13 @@ export function subscribeStages(cb) {
   return onSnapshot(q, (snap) => cb(snap.docs.map((d) => ({ id: d.id, ...d.data() }))));
 }
 
-export function subscribeProspects(cb) {
-  const q = query(col('prospects'), orderBy('createdAt', 'desc'));
+export function subscribeContacts(cb) {
+  const q = query(col('contacts'), orderBy('createdAt', 'desc'));
+  return onSnapshot(q, (snap) => cb(snap.docs.map((d) => ({ id: d.id, ...d.data() }))));
+}
+
+export function subscribeCompanies(cb) {
+  const q = query(col('companies'), orderBy('createdAt', 'desc'));
   return onSnapshot(q, (snap) => cb(snap.docs.map((d) => ({ id: d.id, ...d.data() }))));
 }
 
@@ -49,32 +54,48 @@ export function subscribeTasks(cb) {
   return onSnapshot(q, (snap) => cb(snap.docs.map((d) => ({ id: d.id, ...d.data() }))));
 }
 
-export function createProspect(data) {
-  return addDoc(col('prospects'), {
-    firstName: '', lastName: '', company: '', email: '', mobile: '', whatsapp: '',
+export function createContact(data) {
+  return addDoc(col('contacts'), {
+    firstName: '', lastName: '', email: '', phone: '', mobile: '', whatsapp: '',
     website: '', facebook: '', instagram: '', source: '', stageId: '',
-    estimatedValue: 0, createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+    companyIds: [], estimatedValue: 0, createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
     ...data,
   });
 }
 
-export function updateProspect(id, data) {
-  return updateDoc(doc(col('prospects'), id), { ...data, updatedAt: serverTimestamp() });
+export function updateContact(id, data) {
+  return updateDoc(doc(col('contacts'), id), { ...data, updatedAt: serverTimestamp() });
 }
 
-export function deleteProspect(id) {
-  return deleteDoc(doc(col('prospects'), id));
+export function deleteContact(id) {
+  return deleteDoc(doc(col('contacts'), id));
+}
+
+export function createCompany(data) {
+  return addDoc(col('companies'), {
+    name: '', website: '', phone: '', industry: '',
+    createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+    ...data,
+  });
+}
+
+export function updateCompany(id, data) {
+  return updateDoc(doc(col('companies'), id), { ...data, updatedAt: serverTimestamp() });
+}
+
+export function deleteCompany(id) {
+  return deleteDoc(doc(col('companies'), id));
 }
 
 export function createActivity(data) {
   return addDoc(col('activities'), {
-    prospectId: '', type: 'note', content: '', createdAt: serverTimestamp(), ...data,
+    contactId: '', type: 'note', content: '', createdAt: serverTimestamp(), ...data,
   });
 }
 
 export function createTask(data) {
   return addDoc(col('tasks'), {
-    prospectId: '', title: '', dueDate: '', done: false, createdAt: serverTimestamp(), ...data,
+    contactId: '', title: '', dueDate: '', done: false, createdAt: serverTimestamp(), ...data,
   });
 }
 

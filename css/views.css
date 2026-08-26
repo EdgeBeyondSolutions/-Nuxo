@@ -82,6 +82,19 @@
 .task-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
 .task-row:last-child { border-bottom: none; }
 .task-row-title { font-size: 13.5px; flex: 1; }
+
+/* ---------- Company chips ---------- */
+.company-chip-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.company-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--accent-soft); color: var(--accent); font-weight: 600;
+  font-size: 12.5px; padding: 5px 6px 5px 12px; border-radius: 20px; cursor: pointer;
+}
+.company-chip-remove {
+  width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: var(--accent); font-size: 13px; line-height: 1;
+}
+.company-chip-remove:hover { background: var(--accent); color: var(--accent-contrast); }
 .task-row.done .task-row-title { text-decoration: line-through; color: var(--text-tertiary); }
 .task-row-due { font-size: 11px; color: var(--text-tertiary); font-family: var(--font-mono); }
 

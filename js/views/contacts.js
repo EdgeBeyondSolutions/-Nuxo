@@ -1,8 +1,8 @@
-import { state, filteredProspects, stageById } from '../state.js';
-import { escapeHtml, formatCurrency, fullName } from '../util.js';
+import { state, filteredContacts, stageById, companiesFor } from '../state.js?v=1';
+import { escapeHtml, formatCurrency, fullName } from '../util.js?v=1';
 
-export function renderProspectsTable() {
-  let items = filteredProspects();
+export function renderContactsTable() {
+  let items = filteredContacts();
 
   items = items.slice().sort((a, b) => {
     const dir = state.sortDir === 'asc' ? 1 : -1;
@@ -15,7 +15,7 @@ export function renderProspectsTable() {
     return ((av || 0) - (bv || 0)) * dir;
   });
 
-  const sources = [...new Set(state.prospects.map((p) => p.source).filter(Boolean))];
+  const sources = [...new Set(state.contacts.map((c) => c.source).filter(Boolean))];
 
   const toolbar = `
     <div class="table-toolbar">
@@ -28,12 +28,12 @@ export function renderProspectsTable() {
         ${sources.map((s) => `<option value="${escapeHtml(s)}" ${state.sourceFilter === s ? 'selected' : ''}>${escapeHtml(s)}</option>`).join('')}
       </select>
       <div class="spacer"></div>
-      <button class="btn btn-primary btn-sm" data-action="new-prospect"><span class="plus">+</span> New Prospect</button>
+      <button class="btn btn-primary btn-sm" data-action="new-contact"><span class="plus">+</span> New Contact</button>
     </div>
   `;
 
   if (items.length === 0) {
-    return toolbar + `<div class="empty-state"><div class="empty-state-icon">👤</div><div class="empty-state-title">No prospects yet</div><div class="empty-state-desc">Add your first prospect to start tracking them.</div></div>`;
+    return toolbar + `<div class="empty-state"><div class="empty-state-icon">👤</div><div class="empty-state-title">No contacts yet</div><div class="empty-state-desc">Add your first contact to start tracking them.</div></div>`;
   }
 
   const cols = [
@@ -44,15 +44,16 @@ export function renderProspectsTable() {
     { key: 'createdAt', label: 'Created' },
   ];
 
-  const rows = items.map((p) => {
-    const stage = stageById(p.stageId);
+  const rows = items.map((c) => {
+    const stage = stageById(c.stageId);
+    const companies = companiesFor(c);
     return `
-      <tr data-action="open-prospect" data-id="${p.id}">
-        <td><div class="table-name">${escapeHtml(fullName(p))}</div>${p.company ? `<div class="table-company">${escapeHtml(p.company)}</div>` : ''}</td>
+      <tr data-action="open-contact" data-id="${c.id}">
+        <td><div class="table-name">${escapeHtml(fullName(c))}</div>${companies.length ? `<div class="table-company">${escapeHtml(companies.map((co) => co.name).join(', '))}</div>` : ''}</td>
         <td>${stage ? `<span class="tag tag-stage"><span class="stage-dot" style="background:${stage.color}"></span> ${escapeHtml(stage.name)}</span>` : '—'}</td>
-        <td>${Number(p.estimatedValue) > 0 ? formatCurrency(p.estimatedValue) : '—'}</td>
-        <td>${p.source ? escapeHtml(p.source) : '—'}</td>
-        <td>${p.createdAt?.toDate ? p.createdAt.toDate().toLocaleDateString('en-US', { day: 'numeric', month: 'short' }) : '—'}</td>
+        <td>${Number(c.estimatedValue) > 0 ? formatCurrency(c.estimatedValue) : '—'}</td>
+        <td>${c.source ? escapeHtml(c.source) : '—'}</td>
+        <td>${c.createdAt?.toDate ? c.createdAt.toDate().toLocaleDateString('en-US', { day: 'numeric', month: 'short' }) : '—'}</td>
       </tr>
     `;
   }).join('');

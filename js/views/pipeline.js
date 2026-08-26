@@ -1,14 +1,14 @@
-import { state, filteredProspects } from '../state.js';
-import { escapeHtml, formatCurrency, fullName } from '../util.js';
+import { state, filteredContacts, companiesFor } from '../state.js?v=1';
+import { escapeHtml, formatCurrency, fullName } from '../util.js?v=1';
 
 export function renderPipeline() {
   if (state.stages.length === 0) {
     return `<div class="empty-state"><div class="empty-state-icon">🗂</div><div class="empty-state-title">Setting up your pipeline…</div></div>`;
   }
-  const prospects = filteredProspects();
+  const contacts = filteredContacts();
   const columns = state.stages.map((stage) => {
-    const items = prospects.filter((p) => p.stageId === stage.id);
-    const total = items.reduce((sum, p) => sum + (Number(p.estimatedValue) || 0), 0);
+    const items = contacts.filter((c) => c.stageId === stage.id);
+    const total = items.reduce((sum, c) => sum + (Number(c.estimatedValue) || 0), 0);
     return `
       <div class="board-column">
         <div class="board-column-header">
@@ -17,7 +17,7 @@ export function renderPipeline() {
           <span class="board-column-value">${items.length} · ${formatCurrency(total)}</span>
         </div>
         <div class="board-column-body" data-stage="${stage.id}">
-          ${items.map((p) => prospectCard(p)).join('') || ''}
+          ${items.map((c) => contactCard(c)).join('') || ''}
         </div>
       </div>
     `;
@@ -26,14 +26,15 @@ export function renderPipeline() {
   return `<div class="board">${columns}</div>`;
 }
 
-function prospectCard(p) {
+function contactCard(c) {
+  const companies = companiesFor(c);
   return `
-    <div class="prospect-card" draggable="true" data-id="${p.id}" data-action="open-prospect">
-      <div class="prospect-card-name">${escapeHtml(fullName(p))}</div>
-      ${p.company ? `<div class="prospect-card-company">${escapeHtml(p.company)}</div>` : ''}
+    <div class="prospect-card" draggable="true" data-id="${c.id}" data-action="open-contact">
+      <div class="prospect-card-name">${escapeHtml(fullName(c))}</div>
+      ${companies.length ? `<div class="prospect-card-company">${escapeHtml(companies.map((co) => co.name).join(', '))}</div>` : ''}
       <div class="prospect-card-meta">
-        ${Number(p.estimatedValue) > 0 ? `<span class="tag tag-value">${formatCurrency(p.estimatedValue)}</span>` : ''}
-        ${p.source ? `<span class="tag tag-source">${escapeHtml(p.source)}</span>` : ''}
+        ${Number(c.estimatedValue) > 0 ? `<span class="tag tag-value">${formatCurrency(c.estimatedValue)}</span>` : ''}
+        ${c.source ? `<span class="tag tag-source">${escapeHtml(c.source)}</span>` : ''}
       </div>
     </div>
   `;

@@ -1,5 +1,5 @@
-import { state, prospectById } from '../state.js';
-import { escapeHtml, formatDue, isOverdue, todayISO, fullName } from '../util.js';
+import { state, contactById } from '../state.js?v=1';
+import { escapeHtml, formatDue, isOverdue, todayISO, fullName } from '../util.js?v=1';
 
 export function renderTasks() {
   const today = todayISO();
@@ -26,12 +26,12 @@ export function renderTasks() {
   }
 
   const rows = items.map((t) => {
-    const prospect = t.prospectId ? prospectById(t.prospectId) : null;
+    const contact = t.contactId ? contactById(t.contactId) : null;
     return `
       <div class="task-list-row ${t.done ? 'done' : ''}">
         <div class="check-circle ${t.done ? 'checked' : ''}" data-action="toggle-task" data-id="${t.id}">${t.done ? '✓' : ''}</div>
         <div class="task-list-title">${escapeHtml(t.title)}</div>
-        ${prospect ? `<span class="task-list-prospect" data-action="open-prospect" data-id="${prospect.id}">${escapeHtml(fullName(prospect))}</span>` : ''}
+        ${contact ? `<span class="task-list-prospect" data-action="open-contact" data-id="${contact.id}">${escapeHtml(fullName(contact))}</span>` : ''}
         ${t.dueDate ? `<span class="tag tag-due ${isOverdue(t.dueDate) && !t.done ? 'overdue' : ''}">${formatDue(t.dueDate)}</span>` : ''}
       </div>
     `;

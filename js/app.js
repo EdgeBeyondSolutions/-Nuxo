@@ -1,18 +1,20 @@
 import {
   auth, onAuthStateChanged, signInWithEmailAndPassword,
   createUserWithEmailAndPassword, signOut,
-} from './firebase.js';
+} from './firebase.js?v=1';
 import {
-  setUid, seedDefaultsIfNeeded, subscribeStages, subscribeProspects, subscribeActivities, subscribeTasks,
-  createProspect, updateProspect, deleteProspect, createActivity, createTask, updateTask, deleteTask,
-} from './store.js';
-import { state, notify, onStateChange, stageById, prospectById } from './state.js';
-import { renderPipeline } from './views/pipeline.js';
-import { renderProspectsTable } from './views/prospects.js';
-import { renderProspectDetail } from './views/prospectDetail.js';
-import { renderTasks } from './views/tasksView.js';
-import { renderDashboard } from './views/dashboard.js';
-import { escapeHtml, todayISO } from './util.js';
+  setUid, seedDefaultsIfNeeded, subscribeStages, subscribeContacts, subscribeCompanies, subscribeActivities, subscribeTasks,
+  createContact, updateContact, deleteContact, createCompany, updateCompany, deleteCompany,
+  createActivity, createTask, updateTask, deleteTask,
+} from './store.js?v=1';
+import { state, notify, onStateChange, stageById, contactById, companyById } from './state.js?v=1';
+import { renderPipeline } from './views/pipeline.js?v=1';
+import { renderContactsTable } from './views/contacts.js?v=1';
+import { renderContactDetail } from './views/contactDetail.js?v=1';
+import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=1';
+import { renderTasks } from './views/tasksView.js?v=1';
+import { renderDashboard } from './views/dashboard.js?v=1';
+import { escapeHtml, todayISO } from './util.js?v=1';
 
 // ───────────────────────── Theme ─────────────────────────
 const THEME_KEY = 'nuxo-theme';
@@ -94,7 +96,7 @@ onAuthStateChanged(auth, (user) => {
   } else {
     appEl.hidden = true;
     authScreen.hidden = false;
-    state.stages = []; state.prospects = []; state.activities = []; state.tasks = [];
+    state.stages = []; state.contacts = []; state.companies = []; state.activities = []; state.tasks = [];
   }
 });
 
@@ -108,19 +110,21 @@ function boot() {
     }
     render();
   }));
-  unsubscribers.push(subscribeProspects((prospects) => { state.prospects = prospects; render(); }));
+  unsubscribers.push(subscribeContacts((contacts) => { state.contacts = contacts; render(); }));
+  unsubscribers.push(subscribeCompanies((companies) => { state.companies = companies; render(); }));
   unsubscribers.push(subscribeActivities((activities) => { state.activities = activities; render(); }));
   unsubscribers.push(subscribeTasks((tasks) => { state.tasks = tasks; render(); }));
 }
 
 // ───────────────────────── Navigation ─────────────────────────
-const viewTitles = { dashboard: 'Dashboard', pipeline: 'Pipeline', prospects: 'Prospects', tasks: 'Tasks' };
+const viewTitles = { dashboard: 'Dashboard', pipeline: 'Pipeline', contacts: 'Contacts', companies: 'Companies', tasks: 'Tasks' };
 
 document.getElementById('main-nav').addEventListener('click', (e) => {
   const btn = e.target.closest('.nav-item');
   if (!btn) return;
   state.view = btn.dataset.view;
-  state.selectedProspectId = null;
+  state.selectedContactId = null;
+  state.selectedCompanyId = null;
   closeMobileNav();
   render();
 });
@@ -144,21 +148,25 @@ function render() {
   document.querySelectorAll('.nav-item').forEach((b) => b.classList.toggle('active', b.dataset.view === state.view));
 
   const today = todayISO();
-  document.getElementById('count-prospects').textContent = state.prospects.length;
+  document.getElementById('count-contacts').textContent = state.contacts.length;
   document.getElementById('count-tasks').textContent = state.tasks.filter((t) => !t.done && t.dueDate && t.dueDate <= today).length;
 
   const searchWrap = document.getElementById('topbar-search-wrap');
-  searchWrap.hidden = !(state.view === 'pipeline' || state.view === 'prospects');
+  searchWrap.hidden = !(state.view === 'pipeline' || state.view === 'contacts');
 
-  document.getElementById('view-title').textContent = state.view === 'prospects' && state.selectedProspectId
-    ? '' : viewTitles[state.view];
+  document.getElementById('view-title').textContent =
+    (state.view === 'contacts' && state.selectedContactId) || (state.view === 'companies' && state.selectedCompanyId)
+      ? '' : viewTitles[state.view];
 
   const body = document.getElementById('view-body');
   switch (state.view) {
     case 'dashboard': body.innerHTML = renderDashboard(); break;
     case 'pipeline': body.innerHTML = renderPipeline(); attachDragAndDrop(); break;
-    case 'prospects':
-      body.innerHTML = state.selectedProspectId ? renderProspectDetail(state.selectedProspectId) : renderProspectsTable();
+    case 'contacts':
+      body.innerHTML = state.selectedContactId ? renderContactDetail(state.selectedContactId) : renderContactsTable();
+      break;
+    case 'companies':
+      body.innerHTML = state.selectedCompanyId ? renderCompanyDetail(state.selectedCompanyId) : renderCompaniesTable();
       break;
     case 'tasks': body.innerHTML = renderTasks(); break;
   }
@@ -167,23 +175,70 @@ onStateChange(render);
 
 // ───────────────────────── Body click delegation ─────────────────────────
 document.getElementById('view-body').addEventListener('click', (e) => {
-  const openProspect = e.target.closest('[data-action="open-prospect"]');
-  if (openProspect) { state.view = 'prospects'; state.selectedProspectId = openProspect.dataset.id; render(); return; }
+  const openContact = e.target.closest('[data-action="open-contact"]');
+  if (openContact) { state.view = 'contacts'; state.selectedContactId = openContact.dataset.id; render(); return; }
 
-  const back = e.target.closest('[data-action="back-to-prospects"]');
-  if (back) { state.selectedProspectId = null; render(); return; }
+  const backContacts = e.target.closest('[data-action="back-to-contacts"]');
+  if (backContacts) { state.selectedContactId = null; render(); return; }
 
-  const newProspect = e.target.closest('[data-action="new-prospect"]');
-  if (newProspect) { openProspectDrawer(); return; }
+  const newContact = e.target.closest('[data-action="new-contact"]');
+  if (newContact) { openContactDrawer(); return; }
 
-  const delProspect = e.target.closest('[data-action="delete-prospect"]');
-  if (delProspect) {
-    if (!confirm('Delete this prospect? This cannot be undone.')) return;
-    deleteProspect(delProspect.dataset.id).then(() => {
-      state.selectedProspectId = null;
+  const delContact = e.target.closest('[data-action="delete-contact"]');
+  if (delContact) {
+    if (!confirm('Delete this contact? This cannot be undone.')) return;
+    deleteContact(delContact.dataset.id).then(() => {
+      state.selectedContactId = null;
       render();
-      showToast('Prospect deleted');
+      showToast('Contact deleted');
     });
+    return;
+  }
+
+  const openCompany = e.target.closest('[data-action="open-company"]');
+  if (openCompany) { state.view = 'companies'; state.selectedCompanyId = openCompany.dataset.id; render(); return; }
+
+  const backCompanies = e.target.closest('[data-action="back-to-companies"]');
+  if (backCompanies) { state.selectedCompanyId = null; render(); return; }
+
+  const newCompany = e.target.closest('[data-action="new-company"]');
+  if (newCompany) { openCompanyModal(); return; }
+
+  const delCompany = e.target.closest('[data-action="delete-company"]');
+  if (delCompany) {
+    if (!confirm('Delete this company? It will be unlinked from all contacts.')) return;
+    const companyId = delCompany.dataset.id;
+    const linked = state.contacts.filter((c) => (c.companyIds || []).includes(companyId));
+    Promise.all(linked.map((c) => updateContact(c.id, { companyIds: c.companyIds.filter((id) => id !== companyId) })))
+      .then(() => deleteCompany(companyId))
+      .then(() => {
+        state.selectedCompanyId = null;
+        render();
+        showToast('Company deleted');
+      });
+    return;
+  }
+
+  const linkCompany = e.target.closest('[data-action="link-company"]');
+  if (linkCompany) {
+    const contactId = linkCompany.dataset.id;
+    const select = document.getElementById('company-select');
+    const value = select.value;
+    if (!value) return;
+    if (value === '__new__') { openCompanyModal(contactId); return; }
+    const contact = contactById(contactId);
+    const ids = [...(contact.companyIds || []), value];
+    updateContact(contactId, { companyIds: ids });
+    return;
+  }
+
+  const unlinkCompany = e.target.closest('[data-action="unlink-company"]');
+  if (unlinkCompany) {
+    const contactId = unlinkCompany.dataset.contactId;
+    const companyId = unlinkCompany.dataset.companyId;
+    const contact = contactById(contactId);
+    const ids = (contact.companyIds || []).filter((id) => id !== companyId);
+    updateContact(contactId, { companyIds: ids });
     return;
   }
 
@@ -199,7 +254,7 @@ document.getElementById('view-body').addEventListener('click', (e) => {
     const type = document.getElementById('activity-type').value;
     const content = document.getElementById('activity-content').value.trim();
     if (!content) return;
-    createActivity({ prospectId: addActivity.dataset.id, type, content });
+    createActivity({ contactId: addActivity.dataset.id, type, content });
     document.getElementById('activity-content').value = '';
     return;
   }
@@ -209,7 +264,7 @@ document.getElementById('view-body').addEventListener('click', (e) => {
     const title = document.getElementById('task-title-input').value.trim();
     const dueDate = document.getElementById('task-due-input').value;
     if (!title) return;
-    createTask({ prospectId: addTask.dataset.id, title, dueDate });
+    createTask({ contactId: addTask.dataset.id, title, dueDate });
     document.getElementById('task-title-input').value = '';
     document.getElementById('task-due-input').value = '';
     return;
@@ -240,7 +295,15 @@ document.getElementById('view-body').addEventListener('change', (e) => {
     const id = field.dataset.id;
     const key = field.dataset.field;
     const value = key === 'estimatedValue' ? Number(field.value) || 0 : field.value;
-    updateProspect(id, { [key]: value }).then(() => showToast('Saved'));
+    updateContact(id, { [key]: value }).then(() => showToast('Saved'));
+    return;
+  }
+
+  const companyField = e.target.closest('[data-company-field]');
+  if (companyField) {
+    const id = companyField.dataset.id;
+    const key = companyField.dataset.companyField;
+    updateCompany(id, { [key]: companyField.value }).then(() => showToast('Saved'));
   }
 });
 
@@ -253,53 +316,87 @@ document.getElementById('view-body').addEventListener('keydown', (e) => {
   }
 });
 
-// ───────────────────────── New prospect drawer ─────────────────────────
-const drawer = document.getElementById('prospect-drawer');
-const prospectForm = document.getElementById('prospect-form');
-const firstNameInput = document.getElementById('new-prospect-first-name');
+// ───────────────────────── New contact drawer ─────────────────────────
+const drawer = document.getElementById('contact-drawer');
+const contactForm = document.getElementById('contact-form');
+const firstNameInput = document.getElementById('new-contact-first-name');
 
-function openProspectDrawer() {
-  prospectForm.reset();
-  const stageSelect = document.getElementById('new-prospect-stage');
+function openContactDrawer() {
+  contactForm.reset();
+  const stageSelect = document.getElementById('new-contact-stage');
   stageSelect.innerHTML = state.stages.map((s) => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
   drawer.hidden = false;
   setTimeout(() => firstNameInput.focus(), 30);
 }
 function closeDrawer() { drawer.hidden = true; }
-document.getElementById('prospect-drawer-backdrop').addEventListener('click', closeDrawer);
-document.getElementById('prospect-cancel').addEventListener('click', closeDrawer);
+document.getElementById('contact-drawer-backdrop').addEventListener('click', closeDrawer);
+document.getElementById('contact-cancel').addEventListener('click', closeDrawer);
 
-prospectForm.addEventListener('submit', async (e) => {
+contactForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const data = {
     firstName: firstNameInput.value.trim(),
-    lastName: document.getElementById('new-prospect-last-name').value.trim(),
-    company: document.getElementById('new-prospect-company').value.trim(),
-    email: document.getElementById('new-prospect-email').value.trim(),
-    mobile: document.getElementById('new-prospect-mobile').value.trim(),
-    whatsapp: document.getElementById('new-prospect-whatsapp').value.trim(),
-    website: document.getElementById('new-prospect-website').value.trim(),
-    facebook: document.getElementById('new-prospect-facebook').value.trim(),
-    instagram: document.getElementById('new-prospect-instagram').value.trim(),
-    source: document.getElementById('new-prospect-source').value.trim(),
-    stageId: document.getElementById('new-prospect-stage').value,
-    estimatedValue: Number(document.getElementById('new-prospect-value').value) || 0,
+    lastName: document.getElementById('new-contact-last-name').value.trim(),
+    email: document.getElementById('new-contact-email').value.trim(),
+    phone: document.getElementById('new-contact-phone').value.trim(),
+    mobile: document.getElementById('new-contact-mobile').value.trim(),
+    whatsapp: document.getElementById('new-contact-whatsapp').value.trim(),
+    website: document.getElementById('new-contact-website').value.trim(),
+    facebook: document.getElementById('new-contact-facebook').value.trim(),
+    instagram: document.getElementById('new-contact-instagram').value.trim(),
+    source: document.getElementById('new-contact-source').value.trim(),
+    stageId: document.getElementById('new-contact-stage').value,
+    estimatedValue: Number(document.getElementById('new-contact-value').value) || 0,
   };
   if (!data.firstName) return;
-  await createProspect(data);
+  await createContact(data);
   closeDrawer();
-  showToast('Prospect added');
+  showToast('Contact added');
 });
 
-document.getElementById('new-btn').addEventListener('click', openProspectDrawer);
+document.getElementById('new-btn').addEventListener('click', openContactDrawer);
+
+// ───────────────────────── New company modal ─────────────────────────
+const companyModal = document.getElementById('company-modal');
+const companyForm = document.getElementById('company-form');
+let pendingLinkContactId = null;
+
+function openCompanyModal(linkToContactId = null) {
+  pendingLinkContactId = linkToContactId;
+  companyForm.reset();
+  companyModal.hidden = false;
+  setTimeout(() => document.getElementById('new-company-name').focus(), 30);
+}
+function closeCompanyModal() { companyModal.hidden = true; pendingLinkContactId = null; }
+document.getElementById('company-modal-backdrop').addEventListener('click', closeCompanyModal);
+document.getElementById('company-cancel').addEventListener('click', closeCompanyModal);
+
+companyForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = {
+    name: document.getElementById('new-company-name').value.trim(),
+    website: document.getElementById('new-company-website').value.trim(),
+    phone: document.getElementById('new-company-phone').value.trim(),
+    industry: document.getElementById('new-company-industry').value.trim(),
+  };
+  if (!data.name) return;
+  const ref = await createCompany(data);
+  if (pendingLinkContactId) {
+    const contact = contactById(pendingLinkContactId);
+    const ids = [...(contact.companyIds || []), ref.id];
+    await updateContact(pendingLinkContactId, { companyIds: ids });
+  }
+  closeCompanyModal();
+  showToast('Company added');
+});
 
 // ───────────────────────── Keyboard shortcuts ─────────────────────────
 document.addEventListener('keydown', (e) => {
   const tag = document.activeElement.tagName;
   const typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
-  if (e.key === 'Escape') { closeDrawer(); closeMobileNav(); return; }
+  if (e.key === 'Escape') { closeDrawer(); closeCompanyModal(); closeMobileNav(); return; }
   if (typing) return;
-  if (e.key === 'n' || e.key === 'N') { e.preventDefault(); openProspectDrawer(); }
+  if (e.key === 'n' || e.key === 'N') { e.preventDefault(); openContactDrawer(); }
   if (e.key === '/') { e.preventDefault(); document.getElementById('search-input').focus(); }
 });
 
@@ -319,12 +416,12 @@ function attachDragAndDrop() {
       if (!dragging) return;
       const id = dragging.dataset.id;
       const newStageId = col.dataset.stage;
-      const prospect = prospectById(id);
-      if (!prospect || prospect.stageId === newStageId) return;
-      const oldStage = stageById(prospect.stageId);
+      const contact = contactById(id);
+      if (!contact || contact.stageId === newStageId) return;
+      const oldStage = stageById(contact.stageId);
       const newStage = stageById(newStageId);
-      await updateProspect(id, { stageId: newStageId });
-      await createActivity({ prospectId: id, type: 'stage_change', content: `Moved from "${oldStage?.name || '—'}" to "${newStage?.name}"` });
+      await updateContact(id, { stageId: newStageId });
+      await createActivity({ contactId: id, type: 'stage_change', content: `Moved from "${oldStage?.name || '—'}" to "${newStage?.name}"` });
     });
   });
 }

@@ -1,7 +1,8 @@
 export const state = {
   uid: null,
   stages: [],
-  prospects: [],
+  contacts: [],
+  companies: [],
   activities: [],
   tasks: [],
   view: 'dashboard',
@@ -10,7 +11,8 @@ export const state = {
   sourceFilter: '',
   sortBy: 'createdAt',
   sortDir: 'desc',
-  selectedProspectId: null,
+  selectedContactId: null,
+  selectedCompanyId: null,
   taskFilter: 'pending',
 };
 
@@ -28,27 +30,41 @@ export function stageById(id) {
   return state.stages.find((s) => s.id === id);
 }
 
-export function prospectById(id) {
-  return state.prospects.find((p) => p.id === id);
+export function contactById(id) {
+  return state.contacts.find((c) => c.id === id);
 }
 
-export function activitiesFor(prospectId) {
-  return state.activities.filter((a) => a.prospectId === prospectId);
+export function companyById(id) {
+  return state.companies.find((c) => c.id === id);
 }
 
-export function tasksFor(prospectId) {
-  return state.tasks.filter((t) => t.prospectId === prospectId);
+export function companiesFor(contact) {
+  const ids = contact?.companyIds || [];
+  return ids.map((id) => companyById(id)).filter(Boolean);
 }
 
-export function filteredProspects() {
+export function contactsForCompany(companyId) {
+  return state.contacts.filter((c) => (c.companyIds || []).includes(companyId));
+}
+
+export function activitiesFor(contactId) {
+  return state.activities.filter((a) => a.contactId === contactId);
+}
+
+export function tasksFor(contactId) {
+  return state.tasks.filter((t) => t.contactId === contactId);
+}
+
+export function filteredContacts() {
   const term = state.search.trim().toLowerCase();
-  return state.prospects.filter((p) => {
-    if (state.stageFilter && p.stageId !== state.stageFilter) return false;
-    if (state.sourceFilter && p.source !== state.sourceFilter) return false;
+  return state.contacts.filter((c) => {
+    if (state.stageFilter && c.stageId !== state.stageFilter) return false;
+    if (state.sourceFilter && c.source !== state.sourceFilter) return false;
     if (!term) return true;
-    return (p.firstName || '').toLowerCase().includes(term)
-      || (p.lastName || '').toLowerCase().includes(term)
-      || (p.company || '').toLowerCase().includes(term)
-      || (p.email || '').toLowerCase().includes(term);
+    const companyNames = companiesFor(c).map((co) => co.name.toLowerCase()).join(' ');
+    return (c.firstName || '').toLowerCase().includes(term)
+      || (c.lastName || '').toLowerCase().includes(term)
+      || (c.email || '').toLowerCase().includes(term)
+      || companyNames.includes(term);
   });
 }

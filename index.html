@@ -4,18 +4,18 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Nuxo — Prospect CRM</title>
-<meta name="description" content="Track prospects and your sales pipeline, without the lag of a traditional CRM." />
+<meta name="description" content="Track contacts, companies, and your sales pipeline, without the lag of a traditional CRM." />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="css/tokens.css?v=2" />
-<link rel="stylesheet" href="css/base.css?v=2" />
-<link rel="stylesheet" href="css/layout.css?v=2" />
-<link rel="stylesheet" href="css/components.css?v=2" />
-<link rel="stylesheet" href="css/views.css?v=2" />
+<link rel="stylesheet" href="css/tokens.css?v=3" />
+<link rel="stylesheet" href="css/base.css?v=3" />
+<link rel="stylesheet" href="css/layout.css?v=3" />
+<link rel="stylesheet" href="css/components.css?v=3" />
+<link rel="stylesheet" href="css/views.css?v=3" />
 </head>
 <body>
 
@@ -25,7 +25,7 @@
     <div class="auth-logo">
       <span class="auth-logo-word">Nuxo</span>
     </div>
-    <p class="auth-tag">Your prospect pipeline, clear and fast.</p>
+    <p class="auth-tag">Your contact pipeline, clear and fast.</p>
     <div id="auth-error" class="auth-error" hidden></div>
     <form id="auth-form" class="auth-form">
       <input id="auth-email" type="email" placeholder="you@email.com" autocomplete="email" required />
@@ -45,8 +45,8 @@
       <div class="brand">
         <span class="brand-word">Nuxo</span>
       </div>
-      <button id="new-btn" class="new-btn" title="New Prospect (N)">
-        <span class="plus">+</span> New Prospect
+      <button id="new-btn" class="new-btn" title="New Contact (N)">
+        <span class="plus">+</span> New Contact
       </button>
     </div>
 
@@ -57,8 +57,11 @@
       <button class="nav-item" data-view="pipeline">
         <span class="nav-icon">🗂</span><span>Pipeline</span>
       </button>
-      <button class="nav-item" data-view="prospects">
-        <span class="nav-icon">👤</span><span>Prospects</span><span class="nav-count" id="count-prospects">0</span>
+      <button class="nav-item" data-view="contacts">
+        <span class="nav-icon">👤</span><span>Contacts</span><span class="nav-count" id="count-contacts">0</span>
+      </button>
+      <button class="nav-item" data-view="companies">
+        <span class="nav-icon">🏢</span><span>Companies</span>
       </button>
       <button class="nav-item" data-view="tasks">
         <span class="nav-icon">✅</span><span>Tasks</span><span class="nav-count" id="count-tasks">0</span>
@@ -88,80 +91,81 @@
   <div id="mobile-nav-overlay" class="mobile-nav-overlay" hidden></div>
 </div>
 
-<!-- NEW PROSPECT DRAWER -->
-<div id="prospect-drawer" class="drawer" hidden>
-  <div class="drawer-backdrop" id="prospect-drawer-backdrop"></div>
+<!-- NEW CONTACT DRAWER -->
+<div id="contact-drawer" class="drawer" hidden>
+  <div class="drawer-backdrop" id="contact-drawer-backdrop"></div>
   <div class="drawer-panel">
-    <form id="prospect-form" class="entity-form">
+    <form id="contact-form" class="entity-form">
       <div class="field-grid">
         <div class="field-row">
           <label>First Name</label>
-          <input id="new-prospect-first-name" type="text" placeholder="First name" required />
+          <input id="new-contact-first-name" type="text" placeholder="First name" required />
         </div>
         <div class="field-row">
           <label>Last Name</label>
-          <input id="new-prospect-last-name" type="text" placeholder="Last name" />
+          <input id="new-contact-last-name" type="text" placeholder="Last name" />
         </div>
-      </div>
-
-      <div class="field-row">
-        <label>Company</label>
-        <input id="new-prospect-company" type="text" placeholder="Company (optional)" />
       </div>
 
       <div class="field-grid">
         <div class="field-row">
           <label>Email</label>
-          <input id="new-prospect-email" type="email" placeholder="email@example.com" />
+          <input id="new-contact-email" type="email" placeholder="email@example.com" />
         </div>
+        <div class="field-row">
+          <label>Phone</label>
+          <input id="new-contact-phone" type="tel" placeholder="+1 …" />
+        </div>
+      </div>
+
+      <div class="field-grid">
         <div class="field-row">
           <label>Mobile</label>
-          <input id="new-prospect-mobile" type="tel" placeholder="+1 …" />
+          <input id="new-contact-mobile" type="tel" placeholder="+1 …" />
         </div>
-      </div>
-
-      <div class="field-grid">
         <div class="field-row">
           <label>WhatsApp</label>
-          <input id="new-prospect-whatsapp" type="tel" placeholder="+1 …" />
-        </div>
-        <div class="field-row">
-          <label>Website</label>
-          <input id="new-prospect-website" type="text" placeholder="example.com" />
+          <input id="new-contact-whatsapp" type="tel" placeholder="+1 …" />
         </div>
       </div>
 
       <div class="field-grid">
         <div class="field-row">
-          <label>Facebook</label>
-          <input id="new-prospect-facebook" type="text" placeholder="Profile or page" />
+          <label>Website</label>
+          <input id="new-contact-website" type="text" placeholder="example.com" />
         </div>
         <div class="field-row">
+          <label>Facebook</label>
+          <input id="new-contact-facebook" type="text" placeholder="Profile or page" />
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field-row">
           <label>Instagram</label>
-          <input id="new-prospect-instagram" type="text" placeholder="@handle" />
+          <input id="new-contact-instagram" type="text" placeholder="@handle" />
+        </div>
+        <div class="field-row">
+          <label>Estimated Value</label>
+          <input id="new-contact-value" type="number" min="0" placeholder="0" />
         </div>
       </div>
 
       <div class="field-grid">
         <div class="field-row">
           <label>Stage</label>
-          <select id="new-prospect-stage"></select>
+          <select id="new-contact-stage"></select>
         </div>
         <div class="field-row">
-          <label>Estimated Value</label>
-          <input id="new-prospect-value" type="number" min="0" placeholder="0" />
+          <label>Source</label>
+          <input id="new-contact-source" type="text" placeholder="Referral, social, web…" />
         </div>
-      </div>
-
-      <div class="field-row">
-        <label>Source</label>
-        <input id="new-prospect-source" type="text" placeholder="Referral, social, web…" />
       </div>
 
       <div class="drawer-actions">
         <div></div>
         <div class="drawer-actions-right">
-          <button type="button" id="prospect-cancel" class="btn btn-ghost">Cancel</button>
+          <button type="button" id="contact-cancel" class="btn btn-ghost">Cancel</button>
           <button type="submit" class="btn btn-primary">Save</button>
         </div>
       </div>
@@ -169,9 +173,27 @@
   </div>
 </div>
 
+<!-- NEW COMPANY MODAL -->
+<div id="company-modal" class="modal" hidden>
+  <div class="modal-backdrop" id="company-modal-backdrop"></div>
+  <div class="modal-panel">
+    <h2>New Company</h2>
+    <form id="company-form">
+      <input id="new-company-name" type="text" placeholder="Company name" required />
+      <input id="new-company-website" type="text" placeholder="Website (optional)" />
+      <input id="new-company-phone" type="tel" placeholder="Phone (optional)" />
+      <input id="new-company-industry" type="text" placeholder="Industry (optional)" />
+      <div class="modal-actions">
+        <button type="button" id="company-cancel" class="btn btn-ghost">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Company</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div id="toast" class="toast" hidden></div>
 
-<script type="module" src="js/firebase-config.js"></script>
-<script type="module" src="js/app.js"></script>
+<script type="module" src="js/firebase-config.js?v=1"></script>
+<script type="module" src="js/app.js?v=1"></script>
 </body>
 </html>
