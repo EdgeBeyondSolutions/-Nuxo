@@ -119,6 +119,7 @@
   border-radius: var(--radius-lg); padding: 26px; width: 100%; max-width: 420px;
   box-shadow: var(--shadow-lg); animation: pop-in .18s var(--ease);
 }
+.modal-panel-wide { max-width: 520px; }
 @keyframes pop-in { from { transform: scale(.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .modal-panel h2 { font-size: 17px; margin-bottom: 16px; }
 .modal-panel form { display: flex; flex-direction: column; gap: 12px; }

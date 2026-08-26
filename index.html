@@ -176,13 +176,57 @@
 <!-- NEW COMPANY MODAL -->
 <div id="company-modal" class="modal" hidden>
   <div class="modal-backdrop" id="company-modal-backdrop"></div>
-  <div class="modal-panel">
+  <div class="modal-panel modal-panel-wide">
     <h2>New Company</h2>
     <form id="company-form">
-      <input id="new-company-name" type="text" placeholder="Company name" required />
-      <input id="new-company-website" type="text" placeholder="Website (optional)" />
-      <input id="new-company-phone" type="tel" placeholder="Phone (optional)" />
-      <input id="new-company-industry" type="text" placeholder="Industry (optional)" />
+      <div class="field-row">
+        <label>Company Name</label>
+        <input id="new-company-name" type="text" placeholder="Company name" required />
+      </div>
+      <div class="field-grid">
+        <div class="field-row">
+          <label>Website</label>
+          <input id="new-company-website" type="text" placeholder="example.com" />
+        </div>
+        <div class="field-row">
+          <label>Phone</label>
+          <input id="new-company-phone" type="tel" placeholder="+1 …" />
+        </div>
+      </div>
+      <div class="field-grid">
+        <div class="field-row">
+          <label>Industry</label>
+          <input id="new-company-industry" type="text" placeholder="Industry" />
+        </div>
+        <div class="field-row">
+          <label>Facebook</label>
+          <input id="new-company-facebook" type="text" placeholder="Profile or page" />
+        </div>
+      </div>
+      <div class="field-grid">
+        <div class="field-row">
+          <label>Instagram</label>
+          <input id="new-company-instagram" type="text" placeholder="@handle" />
+        </div>
+        <div class="field-row">
+          <label>Street</label>
+          <input id="new-company-street" type="text" placeholder="Street address" />
+        </div>
+      </div>
+      <div class="field-grid">
+        <div class="field-row">
+          <label>City</label>
+          <input id="new-company-city" type="text" placeholder="City" />
+        </div>
+        <div class="field-row">
+          <label>Postal Code</label>
+          <input id="new-company-postal-code" type="text" placeholder="Postal code" />
+        </div>
+      </div>
+      <div class="field-row">
+        <label>Country</label>
+        <input id="new-company-country" type="text" placeholder="Country" />
+      </div>
       <div class="modal-actions">
         <button type="button" id="company-cancel" class="btn btn-ghost">Cancel</button>
         <button type="submit" class="btn btn-primary">Save Company</button>
@@ -194,6 +238,6 @@
 <div id="toast" class="toast" hidden></div>
 
 <script type="module" src="js/firebase-config.js?v=1"></script>
-<script type="module" src="js/app.js?v=1"></script>
+<script type="module" src="js/app.js?v=2"></script>
 </body>
 </html>

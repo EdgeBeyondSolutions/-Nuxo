@@ -6,12 +6,12 @@ import {
   setUid, seedDefaultsIfNeeded, subscribeStages, subscribeContacts, subscribeCompanies, subscribeActivities, subscribeTasks,
   createContact, updateContact, deleteContact, createCompany, updateCompany, deleteCompany,
   createActivity, createTask, updateTask, deleteTask,
-} from './store.js?v=1';
+} from './store.js?v=2';
 import { state, notify, onStateChange, stageById, contactById, companyById } from './state.js?v=1';
 import { renderPipeline } from './views/pipeline.js?v=1';
 import { renderContactsTable } from './views/contacts.js?v=1';
 import { renderContactDetail } from './views/contactDetail.js?v=1';
-import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=1';
+import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=2';
 import { renderTasks } from './views/tasksView.js?v=1';
 import { renderDashboard } from './views/dashboard.js?v=1';
 import { escapeHtml, todayISO } from './util.js?v=1';
@@ -184,6 +184,9 @@ document.getElementById('view-body').addEventListener('click', (e) => {
   const newContact = e.target.closest('[data-action="new-contact"]');
   if (newContact) { openContactDrawer(); return; }
 
+  const newContactForCompany = e.target.closest('[data-action="new-contact-for-company"]');
+  if (newContactForCompany) { openContactDrawer(newContactForCompany.dataset.id); return; }
+
   const delContact = e.target.closest('[data-action="delete-contact"]');
   if (delContact) {
     if (!confirm('Delete this contact? This cannot be undone.')) return;
@@ -321,14 +324,17 @@ const drawer = document.getElementById('contact-drawer');
 const contactForm = document.getElementById('contact-form');
 const firstNameInput = document.getElementById('new-contact-first-name');
 
-function openContactDrawer() {
+let pendingLinkCompanyId = null;
+
+function openContactDrawer(linkToCompanyId = null) {
+  pendingLinkCompanyId = linkToCompanyId;
   contactForm.reset();
   const stageSelect = document.getElementById('new-contact-stage');
   stageSelect.innerHTML = state.stages.map((s) => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
   drawer.hidden = false;
   setTimeout(() => firstNameInput.focus(), 30);
 }
-function closeDrawer() { drawer.hidden = true; }
+function closeDrawer() { drawer.hidden = true; pendingLinkCompanyId = null; }
 document.getElementById('contact-drawer-backdrop').addEventListener('click', closeDrawer);
 document.getElementById('contact-cancel').addEventListener('click', closeDrawer);
 
@@ -347,6 +353,7 @@ contactForm.addEventListener('submit', async (e) => {
     source: document.getElementById('new-contact-source').value.trim(),
     stageId: document.getElementById('new-contact-stage').value,
     estimatedValue: Number(document.getElementById('new-contact-value').value) || 0,
+    companyIds: pendingLinkCompanyId ? [pendingLinkCompanyId] : [],
   };
   if (!data.firstName) return;
   await createContact(data);
@@ -378,6 +385,12 @@ companyForm.addEventListener('submit', async (e) => {
     website: document.getElementById('new-company-website').value.trim(),
     phone: document.getElementById('new-company-phone').value.trim(),
     industry: document.getElementById('new-company-industry').value.trim(),
+    facebook: document.getElementById('new-company-facebook').value.trim(),
+    instagram: document.getElementById('new-company-instagram').value.trim(),
+    street: document.getElementById('new-company-street').value.trim(),
+    city: document.getElementById('new-company-city').value.trim(),
+    postalCode: document.getElementById('new-company-postal-code').value.trim(),
+    country: document.getElementById('new-company-country').value.trim(),
   };
   if (!data.name) return;
   const ref = await createCompany(data);
