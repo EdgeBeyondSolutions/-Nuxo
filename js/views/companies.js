@@ -1,5 +1,5 @@
 import { state, contactsForCompany, companyById } from '../state.js?v=1';
-import { escapeHtml, fullName, industryOptions } from '../util.js?v=2';
+import { escapeHtml, fullName, industryOptions } from '../util.js?v=3';
 
 export function renderCompaniesTable() {
   const items = state.companies.slice().sort((a, b) => a.name.localeCompare(b.name));

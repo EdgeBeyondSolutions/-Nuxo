@@ -66,7 +66,7 @@ export const INDUSTRIES = [
   'Agriculture', 'Apparel & Accessories', 'Automotive', 'Banking', 'Biotechnology',
   'Chemicals', 'Communications', 'Construction', 'Consulting', 'Education',
   'Electronics', 'Energy', 'Engineering', 'Entertainment & Leisure', 'Finance',
-  'Food & Beverage', 'Government', 'Healthcare', 'Hospitality', 'Insurance',
+  'Food & Beverage', 'Government', 'Health & Beauty', 'Healthcare', 'Hospitality', 'Insurance',
   'Legal', 'Manufacturing', 'Media', 'Non-Profit', 'Real Estate',
   'Recreation', 'Retail', 'Shipping & Transportation', 'Technology',
   'Telecommunications', 'Utilities', 'Other',
