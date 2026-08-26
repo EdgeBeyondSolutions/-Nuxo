@@ -1,5 +1,5 @@
 import { state, contactsForCompany, companyById } from '../state.js?v=1';
-import { escapeHtml, fullName } from '../util.js?v=1';
+import { escapeHtml, fullName, industryOptions } from '../util.js?v=2';
 
 export function renderCompaniesTable() {
   const items = state.companies.slice().sort((a, b) => a.name.localeCompare(b.name));
@@ -22,7 +22,7 @@ export function renderCompaniesTable() {
         <td><div class="table-name">${escapeHtml(co.name)}</div></td>
         <td>${co.website ? escapeHtml(co.website) : '—'}</td>
         <td>${co.phone ? escapeHtml(co.phone) : '—'}</td>
-        <td>${co.industry ? escapeHtml(co.industry) : '—'}</td>
+        <td>${co.email ? escapeHtml(co.email) : '—'}</td>
         <td>${count}</td>
       </tr>
     `;
@@ -30,7 +30,7 @@ export function renderCompaniesTable() {
 
   return toolbar + `
     <table class="data-table">
-      <thead><tr><th>Name</th><th>Website</th><th>Phone</th><th>Industry</th><th>Contacts</th></tr></thead>
+      <thead><tr><th>Name</th><th>Website</th><th>Phone</th><th>Email</th><th>Contacts</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
   `;
@@ -57,7 +57,7 @@ export function renderCompanyDetail(id) {
         <div class="detail-panel-title">Account Information</div>
         <div class="info-grid">
           <div class="info-row"><label>Name</label><input type="text" value="${escapeHtml(co.name || '')}" data-company-field="name" data-id="${co.id}" /></div>
-          <div class="info-row"><label>Industry</label><input type="text" value="${escapeHtml(co.industry || '')}" data-company-field="industry" data-id="${co.id}" /></div>
+          <div class="info-row"><label>Industry</label><select data-company-field="industry" data-id="${co.id}">${industryOptions(co.industry)}</select></div>
           <div class="info-row"><label>Website</label><input type="text" value="${escapeHtml(co.website || '')}" data-company-field="website" data-id="${co.id}" /></div>
           <div class="info-row"><label>Phone</label><input type="tel" value="${escapeHtml(co.phone || '')}" data-company-field="phone" data-id="${co.id}" /></div>
           <div class="info-row"><label>WhatsApp</label><input type="tel" value="${escapeHtml(co.whatsapp || '')}" data-company-field="whatsapp" data-id="${co.id}" /></div>

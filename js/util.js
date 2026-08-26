@@ -61,3 +61,19 @@ const ACTIVITY_ICONS = { note: '📝', call: '📞', email: '✉️', meeting: '
 export function activityIcon(type) {
   return ACTIVITY_ICONS[type] || '📝';
 }
+
+export const INDUSTRIES = [
+  'Agriculture', 'Apparel & Accessories', 'Automotive', 'Banking', 'Biotechnology',
+  'Chemicals', 'Communications', 'Construction', 'Consulting', 'Education',
+  'Electronics', 'Energy', 'Engineering', 'Entertainment & Leisure', 'Finance',
+  'Food & Beverage', 'Government', 'Healthcare', 'Hospitality', 'Insurance',
+  'Legal', 'Manufacturing', 'Media', 'Non-Profit', 'Real Estate',
+  'Recreation', 'Retail', 'Shipping & Transportation', 'Technology',
+  'Telecommunications', 'Utilities', 'Other',
+];
+
+export function industryOptions(selected) {
+  return '<option value="">— Select —</option>' + INDUSTRIES.map((i) =>
+    `<option value="${i}" ${selected === i ? 'selected' : ''}>${i}</option>`
+  ).join('');
+}
