@@ -94,6 +94,24 @@ export function renderCompanyDetail(id) {
           <div class="info-row"><label>Instagram</label><input type="text" value="${escapeHtml(co.instagram || '')}" data-company-field="instagram" data-id="${co.id}" /></div>
         </div>
       </div>
+
+      <div class="detail-panel">
+        <div class="detail-panel-title">Snapshot</div>
+        ${co.snapshotData ? `
+          <div class="snapshot-file">
+            <div class="snapshot-file-icon">📄</div>
+            <div class="snapshot-file-body">
+              <div class="snapshot-file-name">${escapeHtml(co.snapshotName || 'snapshot.pdf')}</div>
+              <div class="snapshot-file-meta">${co.snapshotUploadedAt ? 'Uploaded ' + escapeHtml(co.snapshotUploadedAt) : ''}</div>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" data-action="download-snapshot" data-id="${co.id}">Download</button>
+            <button type="button" class="btn btn-ghost btn-danger btn-sm" data-action="remove-snapshot" data-id="${co.id}">Remove</button>
+          </div>
+        ` : `
+          <div class="empty-state-desc" style="padding:0 0 12px;">No snapshot uploaded yet. PDF only, up to ~700KB.</div>
+          <input type="file" accept="application/pdf" id="snapshot-input-${co.id}" data-action="upload-snapshot" data-id="${co.id}" />
+        `}
+      </div>
     </div>
   `;
 }

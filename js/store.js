@@ -75,6 +75,7 @@ export function createCompany(data) {
   return addDoc(col('companies'), {
     name: '', website: '', phone: '', whatsapp: '', email: '', industry: '',
     facebook: '', instagram: '', street: '', city: '', country: '', postalCode: '',
+    snapshotData: '', snapshotName: '', snapshotUploadedAt: '',
     createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
     ...data,
   });

@@ -6,12 +6,12 @@ import {
   setUid, seedDefaultsIfNeeded, subscribeStages, subscribeContacts, subscribeCompanies, subscribeActivities, subscribeTasks,
   createContact, updateContact, deleteContact, createCompany, updateCompany, deleteCompany,
   createActivity, createTask, updateTask, deleteTask,
-} from './store.js?v=3';
+} from './store.js?v=4';
 import { state, notify, onStateChange, stageById, contactById, companyById } from './state.js?v=1';
 import { renderPipeline } from './views/pipeline.js?v=1';
 import { renderContactsTable } from './views/contacts.js?v=1';
 import { renderContactDetail } from './views/contactDetail.js?v=3';
-import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=6';
+import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=7';
 import { renderTasks } from './views/tasksView.js?v=1';
 import { renderDashboard } from './views/dashboard.js?v=1';
 import { escapeHtml, todayISO } from './util.js?v=1';
@@ -248,6 +248,27 @@ document.getElementById('view-body').addEventListener('click', (e) => {
     return;
   }
 
+  const downloadSnapshot = e.target.closest('[data-action="download-snapshot"]');
+  if (downloadSnapshot) {
+    const co = companyById(downloadSnapshot.dataset.id);
+    if (!co?.snapshotData) return;
+    const link = document.createElement('a');
+    link.href = co.snapshotData;
+    link.download = co.snapshotName || 'snapshot.pdf';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    return;
+  }
+
+  const removeSnapshot = e.target.closest('[data-action="remove-snapshot"]');
+  if (removeSnapshot) {
+    if (!confirm('Remove this snapshot?')) return;
+    updateCompany(removeSnapshot.dataset.id, { snapshotData: '', snapshotName: '', snapshotUploadedAt: '' })
+      .then(() => showToast('Snapshot removed'));
+    return;
+  }
+
   const toggleTask = e.target.closest('[data-action="toggle-task"]');
   if (toggleTask) {
     const task = state.tasks.find((t) => t.id === toggleTask.dataset.id);
@@ -310,6 +331,26 @@ document.getElementById('view-body').addEventListener('change', (e) => {
     const id = companyField.dataset.id;
     const key = companyField.dataset.companyField;
     updateCompany(id, { [key]: companyField.value }).then(() => showToast('Saved'));
+    return;
+  }
+
+  const snapshotInput = e.target.closest('[data-action="upload-snapshot"]');
+  if (snapshotInput) {
+    const file = snapshotInput.files[0];
+    if (!file) return;
+    if (file.type !== 'application/pdf') { showToast('PDF files only'); snapshotInput.value = ''; return; }
+    const MAX_BYTES = 700 * 1024;
+    if (file.size > MAX_BYTES) { showToast('File too large (max ~700KB)'); snapshotInput.value = ''; return; }
+    const id = snapshotInput.dataset.id;
+    const reader = new FileReader();
+    reader.onload = () => {
+      updateCompany(id, {
+        snapshotData: reader.result,
+        snapshotName: file.name,
+        snapshotUploadedAt: new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }),
+      }).then(() => showToast('Snapshot uploaded'));
+    };
+    reader.readAsDataURL(file);
   }
 });
 
