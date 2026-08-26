@@ -55,13 +55,13 @@
         <span class="nav-icon">📊</span><span>Dashboard</span>
       </button>
       <button class="nav-item" data-view="pipeline">
-        <span class="nav-icon">🗂</span><span>Pipeline</span>
+        <span class="nav-icon">🗂</span><span>Pipeline</span><span class="nav-count" id="count-pipeline">0</span>
       </button>
       <button class="nav-item" data-view="contacts">
         <span class="nav-icon">👤</span><span>Contacts</span><span class="nav-count" id="count-contacts">0</span>
       </button>
       <button class="nav-item" data-view="companies">
-        <span class="nav-icon">🏢</span><span>Companies</span>
+        <span class="nav-icon">🏢</span><span>Companies</span><span class="nav-count" id="count-companies">0</span>
       </button>
       <button class="nav-item" data-view="tasks">
         <span class="nav-icon">✅</span><span>Tasks</span><span class="nav-count" id="count-tasks">0</span>
@@ -131,35 +131,18 @@
 
       <div class="field-grid">
         <div class="field-row">
-          <label>Website</label>
-          <input id="new-contact-website" type="text" placeholder="example.com" />
-        </div>
-        <div class="field-row">
-          <label>Facebook</label>
-          <input id="new-contact-facebook" type="text" placeholder="Profile or page" />
-        </div>
-      </div>
-
-      <div class="field-grid">
-        <div class="field-row">
-          <label>Instagram</label>
-          <input id="new-contact-instagram" type="text" placeholder="@handle" />
-        </div>
-        <div class="field-row">
           <label>Estimated Value</label>
           <input id="new-contact-value" type="number" min="0" placeholder="0" />
         </div>
-      </div>
-
-      <div class="field-grid">
         <div class="field-row">
           <label>Stage</label>
           <select id="new-contact-stage"></select>
         </div>
-        <div class="field-row">
-          <label>Source</label>
-          <input id="new-contact-source" type="text" placeholder="Referral, social, web…" />
-        </div>
+      </div>
+
+      <div class="field-row">
+        <label>Source</label>
+        <input id="new-contact-source" type="text" placeholder="Referral, social, web…" />
       </div>
 
       <div class="drawer-actions">
@@ -189,8 +172,18 @@
           <input id="new-company-website" type="text" placeholder="example.com" />
         </div>
         <div class="field-row">
+          <label>Email</label>
+          <input id="new-company-email" type="email" placeholder="hello@example.com" />
+        </div>
+      </div>
+      <div class="field-grid">
+        <div class="field-row">
           <label>Phone</label>
           <input id="new-company-phone" type="tel" placeholder="+1 …" />
+        </div>
+        <div class="field-row">
+          <label>WhatsApp</label>
+          <input id="new-company-whatsapp" type="tel" placeholder="+1 …" />
         </div>
       </div>
       <div class="field-grid">
@@ -238,6 +231,6 @@
 <div id="toast" class="toast" hidden></div>
 
 <script type="module" src="js/firebase-config.js?v=1"></script>
-<script type="module" src="js/app.js?v=2"></script>
+<script type="module" src="js/app.js?v=4"></script>
 </body>
 </html>

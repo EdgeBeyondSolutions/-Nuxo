@@ -72,6 +72,8 @@ export function renderCompanyDetail(id) {
           <div class="info-row"><label>Name</label><input type="text" value="${escapeHtml(co.name || '')}" data-company-field="name" data-id="${co.id}" /></div>
           <div class="info-row"><label>Website</label><input type="text" value="${escapeHtml(co.website || '')}" data-company-field="website" data-id="${co.id}" /></div>
           <div class="info-row"><label>Phone</label><input type="tel" value="${escapeHtml(co.phone || '')}" data-company-field="phone" data-id="${co.id}" /></div>
+          <div class="info-row"><label>WhatsApp</label><input type="tel" value="${escapeHtml(co.whatsapp || '')}" data-company-field="whatsapp" data-id="${co.id}" /></div>
+          <div class="info-row"><label>Email</label><input type="email" value="${escapeHtml(co.email || '')}" data-company-field="email" data-id="${co.id}" /></div>
           <div class="info-row"><label>Industry</label><input type="text" value="${escapeHtml(co.industry || '')}" data-company-field="industry" data-id="${co.id}" /></div>
           <div class="info-row"><label>Facebook</label><input type="text" value="${escapeHtml(co.facebook || '')}" data-company-field="facebook" data-id="${co.id}" /></div>
           <div class="info-row"><label>Instagram</label><input type="text" value="${escapeHtml(co.instagram || '')}" data-company-field="instagram" data-id="${co.id}" /></div>

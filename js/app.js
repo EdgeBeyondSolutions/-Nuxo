@@ -6,12 +6,12 @@ import {
   setUid, seedDefaultsIfNeeded, subscribeStages, subscribeContacts, subscribeCompanies, subscribeActivities, subscribeTasks,
   createContact, updateContact, deleteContact, createCompany, updateCompany, deleteCompany,
   createActivity, createTask, updateTask, deleteTask,
-} from './store.js?v=2';
+} from './store.js?v=3';
 import { state, notify, onStateChange, stageById, contactById, companyById } from './state.js?v=1';
 import { renderPipeline } from './views/pipeline.js?v=1';
 import { renderContactsTable } from './views/contacts.js?v=1';
-import { renderContactDetail } from './views/contactDetail.js?v=1';
-import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=2';
+import { renderContactDetail } from './views/contactDetail.js?v=2';
+import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=3';
 import { renderTasks } from './views/tasksView.js?v=1';
 import { renderDashboard } from './views/dashboard.js?v=1';
 import { escapeHtml, todayISO } from './util.js?v=1';
@@ -148,7 +148,10 @@ function render() {
   document.querySelectorAll('.nav-item').forEach((b) => b.classList.toggle('active', b.dataset.view === state.view));
 
   const today = todayISO();
+  const openStageIds = new Set(state.stages.filter((s) => !s.isWon && !s.isLost).map((s) => s.id));
+  document.getElementById('count-pipeline').textContent = state.contacts.filter((c) => openStageIds.has(c.stageId)).length;
   document.getElementById('count-contacts').textContent = state.contacts.length;
+  document.getElementById('count-companies').textContent = state.companies.length;
   document.getElementById('count-tasks').textContent = state.tasks.filter((t) => !t.done && t.dueDate && t.dueDate <= today).length;
 
   const searchWrap = document.getElementById('topbar-search-wrap');
@@ -347,9 +350,6 @@ contactForm.addEventListener('submit', async (e) => {
     phone: document.getElementById('new-contact-phone').value.trim(),
     mobile: document.getElementById('new-contact-mobile').value.trim(),
     whatsapp: document.getElementById('new-contact-whatsapp').value.trim(),
-    website: document.getElementById('new-contact-website').value.trim(),
-    facebook: document.getElementById('new-contact-facebook').value.trim(),
-    instagram: document.getElementById('new-contact-instagram').value.trim(),
     source: document.getElementById('new-contact-source').value.trim(),
     stageId: document.getElementById('new-contact-stage').value,
     estimatedValue: Number(document.getElementById('new-contact-value').value) || 0,
@@ -384,6 +384,8 @@ companyForm.addEventListener('submit', async (e) => {
     name: document.getElementById('new-company-name').value.trim(),
     website: document.getElementById('new-company-website').value.trim(),
     phone: document.getElementById('new-company-phone').value.trim(),
+    whatsapp: document.getElementById('new-company-whatsapp').value.trim(),
+    email: document.getElementById('new-company-email').value.trim(),
     industry: document.getElementById('new-company-industry').value.trim(),
     facebook: document.getElementById('new-company-facebook').value.trim(),
     instagram: document.getElementById('new-company-instagram').value.trim(),

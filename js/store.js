@@ -57,7 +57,7 @@ export function subscribeTasks(cb) {
 export function createContact(data) {
   return addDoc(col('contacts'), {
     firstName: '', lastName: '', email: '', phone: '', mobile: '', whatsapp: '',
-    website: '', facebook: '', instagram: '', source: '', stageId: '',
+    source: '', stageId: '',
     companyIds: [], estimatedValue: 0, createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
     ...data,
   });
@@ -73,7 +73,7 @@ export function deleteContact(id) {
 
 export function createCompany(data) {
   return addDoc(col('companies'), {
-    name: '', website: '', phone: '', industry: '',
+    name: '', website: '', phone: '', whatsapp: '', email: '', industry: '',
     facebook: '', instagram: '', street: '', city: '', country: '', postalCode: '',
     createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
     ...data,

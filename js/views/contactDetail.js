@@ -78,9 +78,6 @@ export function renderContactDetail(id) {
           <div class="info-row"><label>Phone</label><input type="tel" value="${escapeHtml(c.phone || '')}" data-field="phone" data-id="${c.id}" /></div>
           <div class="info-row"><label>Mobile</label><input type="tel" value="${escapeHtml(c.mobile || '')}" data-field="mobile" data-id="${c.id}" /></div>
           <div class="info-row"><label>WhatsApp</label><input type="tel" value="${escapeHtml(c.whatsapp || '')}" data-field="whatsapp" data-id="${c.id}" /></div>
-          <div class="info-row"><label>Website</label><input type="text" value="${escapeHtml(c.website || '')}" data-field="website" data-id="${c.id}" /></div>
-          <div class="info-row"><label>Facebook</label><input type="text" value="${escapeHtml(c.facebook || '')}" data-field="facebook" data-id="${c.id}" /></div>
-          <div class="info-row"><label>Instagram</label><input type="text" value="${escapeHtml(c.instagram || '')}" data-field="instagram" data-id="${c.id}" /></div>
           <div class="info-row"><label>Source</label><input type="text" value="${escapeHtml(c.source || '')}" data-field="source" data-id="${c.id}" /></div>
           <div class="info-row"><label>Estimated Value</label><input type="number" value="${c.estimatedValue || 0}" data-field="estimatedValue" data-id="${c.id}" /></div>
         </div>
