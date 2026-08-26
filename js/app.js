@@ -11,7 +11,7 @@ import { state, notify, onStateChange, stageById, contactById, companyById } fro
 import { renderPipeline } from './views/pipeline.js?v=1';
 import { renderContactsTable } from './views/contacts.js?v=1';
 import { renderContactDetail } from './views/contactDetail.js?v=3';
-import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=5';
+import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=6';
 import { renderTasks } from './views/tasksView.js?v=1';
 import { renderDashboard } from './views/dashboard.js?v=1';
 import { escapeHtml, todayISO } from './util.js?v=1';

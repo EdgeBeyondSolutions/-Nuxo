@@ -66,6 +66,18 @@ export function renderCompanyDetail(id) {
       </div>
 
       <div class="detail-panel">
+        <div class="detail-panel-title">Contacts</div>
+        ${contacts.length ? contacts.map((c) => `
+          <div class="task-row" data-action="open-contact" data-id="${c.id}" style="cursor:pointer;">
+            <div class="task-row-title">${escapeHtml(fullName(c))}</div>
+          </div>
+        `).join('') : `<div class="empty-state-desc" style="padding:8px 0;">No contacts linked to this account yet.</div>`}
+        <button class="btn btn-ghost btn-sm" data-action="new-contact-for-company" data-id="${co.id}" style="margin-top:12px;">
+          <span class="plus">+</span> New Contact
+        </button>
+      </div>
+
+      <div class="detail-panel">
         <div class="detail-panel-title">Address Information</div>
         <div class="info-grid">
           <div class="info-row"><label>Street</label><input type="text" value="${escapeHtml(co.street || '')}" data-company-field="street" data-id="${co.id}" /></div>
@@ -81,18 +93,6 @@ export function renderCompanyDetail(id) {
           <div class="info-row"><label>Facebook</label><input type="text" value="${escapeHtml(co.facebook || '')}" data-company-field="facebook" data-id="${co.id}" /></div>
           <div class="info-row"><label>Instagram</label><input type="text" value="${escapeHtml(co.instagram || '')}" data-company-field="instagram" data-id="${co.id}" /></div>
         </div>
-      </div>
-
-      <div class="detail-panel">
-        <div class="detail-panel-title">Contacts</div>
-        ${contacts.length ? contacts.map((c) => `
-          <div class="task-row" data-action="open-contact" data-id="${c.id}" style="cursor:pointer;">
-            <div class="task-row-title">${escapeHtml(fullName(c))}</div>
-          </div>
-        `).join('') : `<div class="empty-state-desc" style="padding:8px 0;">No contacts linked to this account yet.</div>`}
-        <button class="btn btn-ghost btn-sm" data-action="new-contact-for-company" data-id="${co.id}" style="margin-top:12px;">
-          <span class="plus">+</span> New Contact
-        </button>
       </div>
     </div>
   `;
