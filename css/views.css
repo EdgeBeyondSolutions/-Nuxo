@@ -64,7 +64,7 @@
 .info-row:last-child { border-bottom: none; }
 .info-row label { color: var(--text-tertiary); font-size: 12px; flex-shrink: 0; }
 .info-row input, .info-row select {
-  text-align: right; padding: 4px 6px; background: transparent;
+  text-align: left; padding: 4px 6px; background: transparent;
   border: 1px solid transparent; border-bottom: 1px dashed var(--border);
   border-radius: var(--radius-sm); cursor: text; transition: all .15s var(--ease);
 }
