@@ -6,11 +6,11 @@ import {
   setUid, seedDefaultsIfNeeded, subscribeStages, subscribeContacts, subscribeCompanies, subscribeActivities, subscribeTasks,
   createContact, updateContact, deleteContact, createCompany, updateCompany, deleteCompany,
   createActivity, createTask, updateTask, deleteTask,
-} from './store.js?v=4';
+} from './store.js?v=5';
 import { state, notify, onStateChange, stageById, contactById, companyById } from './state.js?v=1';
 import { renderPipeline } from './views/pipeline.js?v=1';
 import { renderContactsTable } from './views/contacts.js?v=1';
-import { renderContactDetail } from './views/contactDetail.js?v=5';
+import { renderContactDetail } from './views/contactDetail.js?v=6';
 import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=11';
 import { renderTasks } from './views/tasksView.js?v=1';
 import { renderDashboard } from './views/dashboard.js?v=1';
@@ -279,10 +279,22 @@ document.getElementById('view-body').addEventListener('click', (e) => {
   const addActivity = e.target.closest('[data-action="add-activity"]');
   if (addActivity) {
     const type = document.getElementById('activity-type').value;
+    const isEmail = type === 'email_sent' || type === 'email_received';
+    const subject = isEmail ? document.getElementById('activity-subject').value.trim() : '';
     const content = document.getElementById('activity-content').value.trim();
     if (!content) return;
-    createActivity({ contactId: addActivity.dataset.id, type, content });
+    createActivity({ contactId: addActivity.dataset.id, type, subject, content });
     document.getElementById('activity-content').value = '';
+    document.getElementById('activity-subject').value = '';
+    return;
+  }
+
+  const quickLogEmail = e.target.closest('[data-action="quick-log-email"]');
+  if (quickLogEmail) {
+    const typeSelect = document.getElementById('activity-type');
+    typeSelect.value = quickLogEmail.dataset.logType;
+    typeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    document.getElementById('activity-subject').focus();
     return;
   }
 
@@ -316,6 +328,16 @@ document.getElementById('view-body').addEventListener('change', (e) => {
 
   const taskFilter = e.target.closest('#task-filter');
   if (taskFilter) { state.taskFilter = taskFilter.value; render(); return; }
+
+  const activityType = e.target.closest('#activity-type');
+  if (activityType) {
+    const isEmail = activityType.value === 'email_sent' || activityType.value === 'email_received';
+    const subjectInput = document.getElementById('activity-subject');
+    const contentInput = document.getElementById('activity-content');
+    subjectInput.hidden = !isEmail;
+    contentInput.placeholder = isEmail ? 'Summary of the email…' : 'Write a note…';
+    return;
+  }
 
   const field = e.target.closest('[data-field]');
   if (field) {

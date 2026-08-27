@@ -57,7 +57,10 @@ export function autoResize(textarea) {
   textarea.style.height = textarea.scrollHeight + 'px';
 }
 
-const ACTIVITY_ICONS = { note: '📝', call: '📞', email: '✉️', meeting: '🤝', stage_change: '🔀' };
+const ACTIVITY_ICONS = {
+  note: '📝', call: '📞', email: '✉️', meeting: '🤝', stage_change: '🔀',
+  email_sent: '📤', email_received: '📥',
+};
 export function activityIcon(type) {
   return ACTIVITY_ICONS[type] || '📝';
 }

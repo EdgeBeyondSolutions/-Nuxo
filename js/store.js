@@ -91,7 +91,7 @@ export function deleteCompany(id) {
 
 export function createActivity(data) {
   return addDoc(col('activities'), {
-    contactId: '', type: 'note', content: '', createdAt: serverTimestamp(), ...data,
+    contactId: '', type: 'note', subject: '', content: '', createdAt: serverTimestamp(), ...data,
   });
 }
 

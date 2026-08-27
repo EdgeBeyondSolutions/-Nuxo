@@ -64,13 +64,19 @@ export function renderContactDetail(id) {
 
       <div class="detail-panel">
         <div class="detail-panel-title">Activity</div>
+        <div class="email-quick-actions">
+          <button type="button" class="btn btn-ghost btn-sm" data-action="quick-log-email" data-log-type="email_sent" data-id="${c.id}">📤 Log Email Sent</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-action="quick-log-email" data-log-type="email_received" data-id="${c.id}">📥 Log Reply Received</button>
+        </div>
         <div class="activity-composer">
           <select id="activity-type">
             <option value="note">Note</option>
             <option value="call">Call</option>
-            <option value="email">Email</option>
             <option value="meeting">Meeting</option>
+            <option value="email_sent">Email Sent</option>
+            <option value="email_received">Email Received</option>
           </select>
+          <input id="activity-subject" type="text" placeholder="Subject" hidden />
           <input id="activity-content" type="text" placeholder="Write a note…" />
           <button class="btn btn-primary btn-sm" data-action="add-activity" data-id="${c.id}">Add</button>
         </div>
@@ -79,6 +85,7 @@ export function renderContactDetail(id) {
             <div class="timeline-item">
               <div class="timeline-icon">${activityIcon(a.type)}</div>
               <div class="timeline-body">
+                ${a.subject ? `<div class="timeline-subject">${escapeHtml(a.subject)}</div>` : ''}
                 <div class="timeline-text">${escapeHtml(a.content)}</div>
                 <div class="timeline-date">${formatDateTime(a.createdAt)}</div>
               </div>
