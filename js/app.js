@@ -10,7 +10,7 @@ import {
 import { state, notify, onStateChange, stageById, contactById, companyById } from './state.js?v=1';
 import { renderPipeline } from './views/pipeline.js?v=1';
 import { renderContactsTable } from './views/contacts.js?v=1';
-import { renderContactDetail } from './views/contactDetail.js?v=6';
+import { renderContactDetail } from './views/contactDetail.js?v=8';
 import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=11';
 import { renderTasks } from './views/tasksView.js?v=1';
 import { renderDashboard } from './views/dashboard.js?v=1';
@@ -416,6 +416,12 @@ contactForm.addEventListener('submit', async (e) => {
     source: document.getElementById('new-contact-source').value.trim(),
     stageId: document.getElementById('new-contact-stage').value,
     estimatedValue: Number(document.getElementById('new-contact-value').value) || 0,
+    street: document.getElementById('new-contact-street').value.trim(),
+    street2: document.getElementById('new-contact-street2').value.trim(),
+    city: document.getElementById('new-contact-city').value.trim(),
+    state: document.getElementById('new-contact-state').value.trim(),
+    postalCode: document.getElementById('new-contact-postal-code').value.trim(),
+    country: document.getElementById('new-contact-country').value.trim(),
     companyIds: pendingLinkCompanyId ? [pendingLinkCompanyId] : [],
   };
   if (!data.firstName) return;

@@ -1,5 +1,5 @@
 import { state, contactById, activitiesFor, tasksFor, companiesFor } from '../state.js?v=1';
-import { escapeHtml, formatDateTime, formatDue, isOverdue, activityIcon, fullName } from '../util.js?v=3';
+import { escapeHtml, formatDateTime, formatDue, isOverdue, activityIcon, fullName, sourceOptions } from '../util.js?v=5';
 
 export function renderContactDetail(id) {
   const c = contactById(id);
@@ -36,7 +36,7 @@ export function renderContactDetail(id) {
             </select>
           </div>
           <div class="info-row"><label>Estimated Value</label><input type="number" value="${c.estimatedValue || 0}" data-field="estimatedValue" data-id="${c.id}" /></div>
-          <div class="info-row"><label>Source</label><input type="text" value="${escapeHtml(c.source || '')}" data-field="source" data-id="${c.id}" /></div>
+          <div class="info-row"><label>Source</label><select data-field="source" data-id="${c.id}">${sourceOptions(c.source)}</select></div>
         </div>
       </div>
 
@@ -59,6 +59,18 @@ export function renderContactDetail(id) {
             <option value="__new__">+ New company…</option>
           </select>
           <button class="btn btn-primary btn-sm" data-action="link-company" data-id="${c.id}">Add</button>
+        </div>
+      </div>
+
+      <div class="detail-panel">
+        <div class="detail-panel-title">Address Information</div>
+        <div class="info-grid">
+          <div class="info-row"><label>Street</label><input type="text" value="${escapeHtml(c.street || '')}" data-field="street" data-id="${c.id}" /></div>
+          <div class="info-row"><label>Street 2</label><input type="text" value="${escapeHtml(c.street2 || '')}" data-field="street2" data-id="${c.id}" /></div>
+          <div class="info-row"><label>City</label><input type="text" value="${escapeHtml(c.city || '')}" data-field="city" data-id="${c.id}" /></div>
+          <div class="info-row"><label>State</label><input type="text" value="${escapeHtml(c.state || '')}" data-field="state" data-id="${c.id}" /></div>
+          <div class="info-row"><label>Postal Code</label><input type="text" value="${escapeHtml(c.postalCode || '')}" data-field="postalCode" data-id="${c.id}" /></div>
+          <div class="info-row"><label>Country</label><input type="text" value="${escapeHtml(c.country || '')}" data-field="country" data-id="${c.id}" /></div>
         </div>
       </div>
 

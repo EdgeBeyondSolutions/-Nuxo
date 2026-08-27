@@ -80,3 +80,16 @@ export function industryOptions(selected) {
     `<option value="${i}" ${selected === i ? 'selected' : ''}>${i}</option>`
   ).join('');
 }
+
+export const SOURCES = [
+  'Advertisement', 'Chat', 'Cold Call', 'Email Campaign', 'Employee Referral',
+  'Existing Customer', 'Facebook', 'Google Ads', 'Instagram', 'LinkedIn',
+  'Organic Search', 'Partner', 'Public Relations', 'Referral', 'Trade Show',
+  'Walk-In', 'Web Download', 'Web Research', 'Website', 'Other',
+];
+
+export function sourceOptions(selected) {
+  return '<option value="">— Select —</option>' + SOURCES.map((s) =>
+    `<option value="${s}" ${selected === s ? 'selected' : ''}>${s}</option>`
+  ).join('');
+}

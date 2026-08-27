@@ -142,7 +142,62 @@
 
       <div class="field-row">
         <label>Source</label>
-        <input id="new-contact-source" type="text" placeholder="Referral, social, web…" />
+        <select id="new-contact-source">
+          <option value="">— Select —</option>
+          <option>Advertisement</option>
+          <option>Chat</option>
+          <option>Cold Call</option>
+          <option>Email Campaign</option>
+          <option>Employee Referral</option>
+          <option>Existing Customer</option>
+          <option>Facebook</option>
+          <option>Google Ads</option>
+          <option>Instagram</option>
+          <option>LinkedIn</option>
+          <option>Organic Search</option>
+          <option>Partner</option>
+          <option>Public Relations</option>
+          <option>Referral</option>
+          <option>Trade Show</option>
+          <option>Walk-In</option>
+          <option>Web Download</option>
+          <option>Web Research</option>
+          <option>Website</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="field-grid">
+        <div class="field-row">
+          <label>Street</label>
+          <input id="new-contact-street" type="text" placeholder="Street address" />
+        </div>
+        <div class="field-row">
+          <label>Street 2</label>
+          <input id="new-contact-street2" type="text" placeholder="Apt, suite, etc." />
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field-row">
+          <label>City</label>
+          <input id="new-contact-city" type="text" placeholder="City" />
+        </div>
+        <div class="field-row">
+          <label>State</label>
+          <input id="new-contact-state" type="text" placeholder="State" />
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field-row">
+          <label>Postal Code</label>
+          <input id="new-contact-postal-code" type="text" placeholder="Postal code" />
+        </div>
+        <div class="field-row">
+          <label>Country</label>
+          <input id="new-contact-country" type="text" placeholder="Country" />
+        </div>
       </div>
 
       <div class="drawer-actions">
@@ -276,6 +331,6 @@
 <div id="toast" class="toast" hidden></div>
 
 <script type="module" src="js/firebase-config.js?v=1"></script>
-<script type="module" src="js/app.js?v=15"></script>
+<script type="module" src="js/app.js?v=17"></script>
 </body>
 </html>

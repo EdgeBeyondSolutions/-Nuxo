@@ -58,6 +58,7 @@ export function createContact(data) {
   return addDoc(col('contacts'), {
     firstName: '', lastName: '', email: '', phone: '', mobile: '', whatsapp: '',
     source: '', stageId: '',
+    street: '', street2: '', city: '', state: '', country: '', postalCode: '',
     companyIds: [], estimatedValue: 0, createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
     ...data,
   });
