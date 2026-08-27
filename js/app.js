@@ -10,7 +10,7 @@ import {
 import { state, notify, onStateChange, stageById, contactById, companyById } from './state.js?v=1';
 import { renderPipeline } from './views/pipeline.js?v=1';
 import { renderContactsTable } from './views/contacts.js?v=1';
-import { renderContactDetail } from './views/contactDetail.js?v=4';
+import { renderContactDetail } from './views/contactDetail.js?v=5';
 import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=11';
 import { renderTasks } from './views/tasksView.js?v=1';
 import { renderDashboard } from './views/dashboard.js?v=1';
