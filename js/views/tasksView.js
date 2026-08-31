@@ -1,5 +1,5 @@
 import { state, contactById } from '../state.js?v=1';
-import { escapeHtml, formatDue, isOverdue, todayISO, fullName } from '../util.js?v=1';
+import { escapeHtml, isOverdue, todayISO, fullName } from '../util.js?v=1';
 
 export function renderTasks() {
   const today = todayISO();
@@ -30,9 +30,10 @@ export function renderTasks() {
     return `
       <div class="task-list-row ${t.done ? 'done' : ''}">
         <div class="check-circle ${t.done ? 'checked' : ''}" data-action="toggle-task" data-id="${t.id}">${t.done ? '✓' : ''}</div>
-        <div class="task-list-title">${escapeHtml(t.title)}</div>
+        <input type="text" class="task-title-input" value="${escapeHtml(t.title)}" data-task-field="title" data-id="${t.id}" />
         ${contact ? `<span class="task-list-prospect" data-action="open-contact" data-id="${contact.id}">${escapeHtml(fullName(contact))}</span>` : ''}
-        ${t.dueDate ? `<span class="tag tag-due ${isOverdue(t.dueDate) && !t.done ? 'overdue' : ''}">${formatDue(t.dueDate)}</span>` : ''}
+        <input type="date" class="task-due-input ${isOverdue(t.dueDate) && !t.done ? 'overdue' : ''}" value="${t.dueDate || ''}" data-task-field="dueDate" data-id="${t.id}" />
+        <button type="button" class="task-list-delete" data-action="delete-task" data-id="${t.id}" title="Delete task">×</button>
       </div>
     `;
   }).join('');

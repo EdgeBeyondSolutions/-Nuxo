@@ -1,5 +1,5 @@
 import { state, contactById, activitiesFor, tasksFor, companiesFor } from '../state.js?v=1';
-import { escapeHtml, formatDateTime, formatDue, isOverdue, activityIcon, fullName, sourceOptions } from '../util.js?v=5';
+import { escapeHtml, formatDateTime, isOverdue, activityIcon, fullName, sourceOptions } from '../util.js?v=5';
 
 export function renderContactDetail(id) {
   const c = contactById(id);
@@ -116,8 +116,9 @@ export function renderContactDetail(id) {
         ${tasks.length ? tasks.map((t) => `
           <div class="task-row ${t.done ? 'done' : ''}">
             <div class="check-circle ${t.done ? 'checked' : ''}" data-action="toggle-task" data-id="${t.id}">${t.done ? '✓' : ''}</div>
-            <div class="task-row-title">${escapeHtml(t.title)}</div>
-            ${t.dueDate ? `<div class="task-row-due ${isOverdue(t.dueDate) && !t.done ? 'overdue' : ''}">${formatDue(t.dueDate)}</div>` : ''}
+            <input type="text" class="task-title-input" value="${escapeHtml(t.title)}" data-task-field="title" data-id="${t.id}" />
+            <input type="date" class="task-due-input ${isOverdue(t.dueDate) && !t.done ? 'overdue' : ''}" value="${t.dueDate || ''}" data-task-field="dueDate" data-id="${t.id}" />
+            <button type="button" class="task-row-delete" data-action="delete-task" data-id="${t.id}" title="Delete task">×</button>
           </div>
         `).join('') : `<div class="empty-state-desc" style="padding:8px 0;">No pending tasks.</div>`}
       </div>

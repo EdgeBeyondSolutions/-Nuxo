@@ -10,9 +10,9 @@ import {
 import { state, notify, onStateChange, stageById, contactById, companyById } from './state.js?v=1';
 import { renderPipeline } from './views/pipeline.js?v=1';
 import { renderContactsTable } from './views/contacts.js?v=1';
-import { renderContactDetail } from './views/contactDetail.js?v=8';
+import { renderContactDetail } from './views/contactDetail.js?v=9';
 import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=11';
-import { renderTasks } from './views/tasksView.js?v=1';
+import { renderTasks } from './views/tasksView.js?v=2';
 import { renderDashboard } from './views/dashboard.js?v=1';
 import { escapeHtml, todayISO } from './util.js?v=2';
 
@@ -276,6 +276,13 @@ document.getElementById('view-body').addEventListener('click', (e) => {
     return;
   }
 
+  const delTask = e.target.closest('[data-action="delete-task"]');
+  if (delTask) {
+    if (!confirm('Delete this task?')) return;
+    deleteTask(delTask.dataset.id).then(() => showToast('Task deleted'));
+    return;
+  }
+
   const addActivity = e.target.closest('[data-action="add-activity"]');
   if (addActivity) {
     const type = document.getElementById('activity-type').value;
@@ -353,6 +360,15 @@ document.getElementById('view-body').addEventListener('change', (e) => {
     const id = companyField.dataset.id;
     const key = companyField.dataset.companyField;
     updateCompany(id, { [key]: companyField.value }).then(() => showToast('Saved'));
+    return;
+  }
+
+  const taskField = e.target.closest('[data-task-field]');
+  if (taskField) {
+    const id = taskField.dataset.id;
+    const key = taskField.dataset.taskField;
+    if (key === 'title' && !taskField.value.trim()) { render(); return; }
+    updateTask(id, { [key]: taskField.value }).then(() => showToast('Saved'));
     return;
   }
 
