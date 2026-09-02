@@ -9,6 +9,14 @@ export function renderPipeline() {
   const columns = state.stages.map((stage) => {
     const items = contacts.filter((c) => c.stageId === stage.id);
     const total = items.reduce((sum, c) => sum + (Number(c.estimatedValue) || 0), 0);
+
+    const cards = items.flatMap((c) => {
+      const companies = companiesFor(c);
+      return companies.length
+        ? companies.map((co) => contactCard(c, co))
+        : [contactCard(c, null)];
+    });
+
     return `
       <div class="board-column">
         <div class="board-column-header">
@@ -17,7 +25,7 @@ export function renderPipeline() {
           <span class="board-column-value">${items.length} · ${formatCurrency(total)}</span>
         </div>
         <div class="board-column-body" data-stage="${stage.id}">
-          ${items.map((c) => contactCard(c)).join('') || ''}
+          ${cards.join('') || ''}
         </div>
       </div>
     `;
@@ -26,12 +34,11 @@ export function renderPipeline() {
   return `<div class="board">${columns}</div>`;
 }
 
-function contactCard(c) {
-  const companies = companiesFor(c);
+function contactCard(c, company) {
   return `
     <div class="prospect-card" draggable="true" data-id="${c.id}" data-action="open-contact">
       <div class="prospect-card-name">${escapeHtml(fullName(c))}</div>
-      ${companies.length ? `<div class="prospect-card-company">${escapeHtml(companies.map((co) => co.name).join(', '))}</div>` : ''}
+      ${company ? `<div class="prospect-card-company">${escapeHtml(company.name)}</div>` : ''}
       <div class="prospect-card-meta">
         ${Number(c.estimatedValue) > 0 ? `<span class="tag tag-value">${formatCurrency(c.estimatedValue)}</span>` : ''}
         ${c.source ? `<span class="tag tag-source">${escapeHtml(c.source)}</span>` : ''}
