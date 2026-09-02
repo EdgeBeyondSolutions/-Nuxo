@@ -54,6 +54,11 @@ export function subscribeTasks(cb) {
   return onSnapshot(q, (snap) => cb(snap.docs.map((d) => ({ id: d.id, ...d.data() }))));
 }
 
+export function subscribeDeals(cb) {
+  const q = query(col('deals'), orderBy('createdAt', 'desc'));
+  return onSnapshot(q, (snap) => cb(snap.docs.map((d) => ({ id: d.id, ...d.data() }))));
+}
+
 export function createContact(data) {
   return addDoc(col('contacts'), {
     firstName: '', lastName: '', email: '', phone: '', mobile: '', whatsapp: '',
@@ -108,4 +113,20 @@ export function updateTask(id, data) {
 
 export function deleteTask(id) {
   return deleteDoc(doc(col('tasks'), id));
+}
+
+export function createDeal(data) {
+  return addDoc(col('deals'), {
+    contactId: '', companyId: '', stageId: '', estimatedValue: 0,
+    createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+    ...data,
+  });
+}
+
+export function updateDeal(id, data) {
+  return updateDoc(doc(col('deals'), id), { ...data, updatedAt: serverTimestamp() });
+}
+
+export function deleteDeal(id) {
+  return deleteDoc(doc(col('deals'), id));
 }

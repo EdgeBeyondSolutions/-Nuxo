@@ -5,6 +5,7 @@ export const state = {
   companies: [],
   activities: [],
   tasks: [],
+  deals: [],
   view: 'dashboard',
   search: '',
   stageFilter: '',
@@ -53,6 +54,22 @@ export function activitiesFor(contactId) {
 
 export function tasksFor(contactId) {
   return state.tasks.filter((t) => t.contactId === contactId);
+}
+
+export function dealsFor(contactId) {
+  return state.deals.filter((d) => d.contactId === contactId);
+}
+
+export function dealFor(contactId, companyId) {
+  return state.deals.find((d) => d.contactId === contactId && d.companyId === companyId);
+}
+
+export function dealById(id) {
+  return state.deals.find((d) => d.id === id);
+}
+
+export function dealsForCompany(companyId) {
+  return state.deals.filter((d) => d.companyId === companyId);
 }
 
 export function filteredContacts() {

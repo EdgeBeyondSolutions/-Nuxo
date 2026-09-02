@@ -4,14 +4,15 @@ import {
 } from './firebase.js?v=1';
 import {
   setUid, seedDefaultsIfNeeded, subscribeStages, subscribeContacts, subscribeCompanies, subscribeActivities, subscribeTasks,
+  subscribeDeals, createDeal, updateDeal, deleteDeal,
   createContact, updateContact, deleteContact, createCompany, updateCompany, deleteCompany,
   createActivity, createTask, updateTask, deleteTask,
-} from './store.js?v=5';
-import { state, notify, onStateChange, stageById, contactById, companyById } from './state.js?v=1';
-import { renderPipeline } from './views/pipeline.js?v=2';
+} from './store.js?v=6';
+import { state, notify, onStateChange, stageById, contactById, companyById, dealFor, dealById, dealsForCompany, dealsFor } from './state.js?v=2';
+import { renderPipeline } from './views/pipeline.js?v=3';
 import { renderContactsTable } from './views/contacts.js?v=1';
-import { renderContactDetail } from './views/contactDetail.js?v=9';
-import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=12';
+import { renderContactDetail } from './views/contactDetail.js?v=10';
+import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=13';
 import { renderTasks } from './views/tasksView.js?v=2';
 import { renderDashboard } from './views/dashboard.js?v=1';
 import { escapeHtml, todayISO } from './util.js?v=2';
@@ -96,12 +97,31 @@ onAuthStateChanged(auth, (user) => {
   } else {
     appEl.hidden = true;
     authScreen.hidden = false;
-    state.stages = []; state.contacts = []; state.companies = []; state.activities = []; state.tasks = [];
+    state.stages = []; state.contacts = []; state.companies = []; state.activities = []; state.tasks = []; state.deals = [];
   }
 });
 
 function boot() {
   let stagesLoaded = false;
+  let contactsLoaded = false;
+  let dealsLoaded = false;
+  const pendingDealKeys = new Set();
+
+  function reconcileDeals() {
+    if (!contactsLoaded || !dealsLoaded) return;
+    state.contacts.forEach((c) => {
+      (c.companyIds || []).forEach((companyId) => {
+        const key = `${c.id}_${companyId}`;
+        if (dealFor(c.id, companyId) || pendingDealKeys.has(key)) return;
+        pendingDealKeys.add(key);
+        createDeal({
+          contactId: c.id, companyId,
+          stageId: c.stageId || '', estimatedValue: c.estimatedValue || 0,
+        }).finally(() => pendingDealKeys.delete(key));
+      });
+    });
+  }
+
   unsubscribers.push(subscribeStages(async (stages) => {
     state.stages = stages;
     if (!stagesLoaded) {
@@ -110,10 +130,21 @@ function boot() {
     }
     render();
   }));
-  unsubscribers.push(subscribeContacts((contacts) => { state.contacts = contacts; render(); }));
+  unsubscribers.push(subscribeContacts((contacts) => {
+    state.contacts = contacts;
+    contactsLoaded = true;
+    reconcileDeals();
+    render();
+  }));
   unsubscribers.push(subscribeCompanies((companies) => { state.companies = companies; render(); }));
   unsubscribers.push(subscribeActivities((activities) => { state.activities = activities; render(); }));
   unsubscribers.push(subscribeTasks((tasks) => { state.tasks = tasks; render(); }));
+  unsubscribers.push(subscribeDeals((deals) => {
+    state.deals = deals;
+    dealsLoaded = true;
+    reconcileDeals();
+    render();
+  }));
 }
 
 // ───────────────────────── Navigation ─────────────────────────
@@ -193,11 +224,15 @@ document.getElementById('view-body').addEventListener('click', (e) => {
   const delContact = e.target.closest('[data-action="delete-contact"]');
   if (delContact) {
     if (!confirm('Delete this contact? This cannot be undone.')) return;
-    deleteContact(delContact.dataset.id).then(() => {
-      state.selectedContactId = null;
-      render();
-      showToast('Contact deleted');
-    });
+    const contactId = delContact.dataset.id;
+    const deals = dealsFor(contactId);
+    Promise.all(deals.map((d) => deleteDeal(d.id)))
+      .then(() => deleteContact(contactId))
+      .then(() => {
+        state.selectedContactId = null;
+        render();
+        showToast('Contact deleted');
+      });
     return;
   }
 
@@ -215,7 +250,11 @@ document.getElementById('view-body').addEventListener('click', (e) => {
     if (!confirm('Delete this company? It will be unlinked from all contacts.')) return;
     const companyId = delCompany.dataset.id;
     const linked = state.contacts.filter((c) => (c.companyIds || []).includes(companyId));
-    Promise.all(linked.map((c) => updateContact(c.id, { companyIds: c.companyIds.filter((id) => id !== companyId) })))
+    const deals = dealsForCompany(companyId);
+    Promise.all([
+      ...linked.map((c) => updateContact(c.id, { companyIds: c.companyIds.filter((id) => id !== companyId) })),
+      ...deals.map((d) => deleteDeal(d.id)),
+    ])
       .then(() => deleteCompany(companyId))
       .then(() => {
         state.selectedCompanyId = null;
@@ -245,6 +284,8 @@ document.getElementById('view-body').addEventListener('click', (e) => {
     const contact = contactById(contactId);
     const ids = (contact.companyIds || []).filter((id) => id !== companyId);
     updateContact(contactId, { companyIds: ids });
+    const deal = dealFor(contactId, companyId);
+    if (deal) deleteDeal(deal.id);
     return;
   }
 
@@ -369,6 +410,15 @@ document.getElementById('view-body').addEventListener('change', (e) => {
     const key = taskField.dataset.taskField;
     if (key === 'title' && !taskField.value.trim()) { render(); return; }
     updateTask(id, { [key]: taskField.value }).then(() => showToast('Saved'));
+    return;
+  }
+
+  const dealField = e.target.closest('[data-deal-field]');
+  if (dealField) {
+    const id = dealField.dataset.id;
+    const key = dealField.dataset.dealField;
+    const value = key === 'estimatedValue' ? Number(dealField.value) || 0 : dealField.value;
+    updateDeal(id, { [key]: value }).then(() => showToast('Saved'));
     return;
   }
 
@@ -517,13 +567,26 @@ function attachDragAndDrop() {
       const dragging = document.querySelector('.prospect-card.dragging');
       if (!dragging) return;
       const id = dragging.dataset.id;
+      const dealId = dragging.dataset.dealId;
       const newStageId = col.dataset.stage;
       const contact = contactById(id);
-      if (!contact || contact.stageId === newStageId) return;
-      const oldStage = stageById(contact.stageId);
-      const newStage = stageById(newStageId);
-      await updateContact(id, { stageId: newStageId });
-      await createActivity({ contactId: id, type: 'stage_change', content: `Moved from "${oldStage?.name || '—'}" to "${newStage?.name}"` });
+      if (!contact) return;
+
+      if (dealId) {
+        const deal = dealById(dealId);
+        if (!deal || deal.stageId === newStageId) return;
+        const oldStage = stageById(deal.stageId);
+        const newStage = stageById(newStageId);
+        const company = companyById(deal.companyId);
+        await updateDeal(dealId, { stageId: newStageId });
+        await createActivity({ contactId: id, type: 'stage_change', content: `${company ? `[${company.name}] ` : ''}Moved from "${oldStage?.name || '—'}" to "${newStage?.name}"` });
+      } else {
+        if (contact.stageId === newStageId) return;
+        const oldStage = stageById(contact.stageId);
+        const newStage = stageById(newStageId);
+        await updateContact(id, { stageId: newStageId });
+        await createActivity({ contactId: id, type: 'stage_change', content: `Moved from "${oldStage?.name || '—'}" to "${newStage?.name}"` });
+      }
     });
   });
 }

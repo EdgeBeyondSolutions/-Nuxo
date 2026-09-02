@@ -1,4 +1,4 @@
-import { state, contactById, activitiesFor, tasksFor, companiesFor } from '../state.js?v=1';
+import { state, contactById, activitiesFor, tasksFor, companiesFor, dealFor } from '../state.js?v=2';
 import { escapeHtml, formatDateTime, isOverdue, activityIcon, fullName, sourceOptions } from '../util.js?v=5';
 
 export function renderContactDetail(id) {
@@ -42,16 +42,25 @@ export function renderContactDetail(id) {
 
       <div class="detail-panel">
         <div class="detail-panel-title">Companies</div>
-        ${linkedCompanies.length ? `
-          <div class="company-chip-list">
-            ${linkedCompanies.map((co) => `
-              <span class="company-chip" data-action="open-company" data-id="${co.id}">
-                ${escapeHtml(co.name)}
-                <button type="button" class="company-chip-remove" data-action="unlink-company" data-contact-id="${c.id}" data-company-id="${co.id}">×</button>
-              </span>
-            `).join('')}
-          </div>
-        ` : `<div class="empty-state-desc" style="padding:4px 0 12px;">No companies linked.</div>`}
+        ${linkedCompanies.length ? linkedCompanies.map((co) => {
+          const deal = dealFor(c.id, co.id);
+          return deal ? `
+            <div class="deal-row">
+              <div class="deal-row-name" data-action="open-company" data-id="${co.id}">${escapeHtml(co.name)}</div>
+              <select class="deal-row-stage" data-deal-field="stageId" data-id="${deal.id}">
+                ${state.stages.map((s) => `<option value="${s.id}" ${deal.stageId === s.id ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('')}
+              </select>
+              <input type="number" class="deal-row-value" value="${deal.estimatedValue || 0}" data-deal-field="estimatedValue" data-id="${deal.id}" />
+              <button type="button" class="task-row-delete" data-action="unlink-company" data-contact-id="${c.id}" data-company-id="${co.id}" title="Remove company">×</button>
+            </div>
+          ` : `
+            <div class="deal-row">
+              <div class="deal-row-name" data-action="open-company" data-id="${co.id}">${escapeHtml(co.name)}</div>
+              <div class="empty-state-desc" style="padding:0;">Setting up…</div>
+              <button type="button" class="task-row-delete" data-action="unlink-company" data-contact-id="${c.id}" data-company-id="${co.id}" title="Remove company">×</button>
+            </div>
+          `;
+        }).join('') : `<div class="empty-state-desc" style="padding:4px 0 12px;">No companies linked.</div>`}
         <div class="activity-composer">
           <select id="company-select" data-id="${c.id}">
             <option value="">Select a company…</option>
