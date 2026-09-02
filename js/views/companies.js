@@ -68,8 +68,9 @@ export function renderCompanyDetail(id) {
       <div class="detail-panel">
         <div class="detail-panel-title">Contacts</div>
         ${contacts.length ? contacts.map((c) => `
-          <div class="task-row" data-action="open-contact" data-id="${c.id}" style="cursor:pointer;">
-            <div class="task-row-title">${escapeHtml(fullName(c))}</div>
+          <div class="task-row">
+            <div class="task-row-title" data-action="open-contact" data-id="${c.id}" style="cursor:pointer;">${escapeHtml(fullName(c))}</div>
+            <button type="button" class="task-row-delete" data-action="unlink-company" data-contact-id="${c.id}" data-company-id="${co.id}" title="Remove from this company">×</button>
           </div>
         `).join('') : `<div class="empty-state-desc" style="padding:8px 0;">No contacts linked to this company yet.</div>`}
         <button class="btn btn-ghost btn-sm" data-action="new-contact-for-company" data-id="${co.id}" style="margin-top:12px;">
