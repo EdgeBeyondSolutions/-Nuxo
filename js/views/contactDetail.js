@@ -37,7 +37,12 @@ export function renderContactDetail(id) {
           </div>
           <div class="info-row"><label>Estimated Value</label><input type="number" value="${c.estimatedValue || 0}" data-field="estimatedValue" data-id="${c.id}" /></div>
           <div class="info-row"><label>Source</label><select data-field="source" data-id="${c.id}">${sourceOptions(c.source)}</select></div>
+          <div class="info-row info-row-checkbox">
+            <label for="dnc-${c.id}">Do Not Contact</label>
+            <input type="checkbox" id="dnc-${c.id}" ${c.doNotContact ? 'checked' : ''} data-field="doNotContact" data-id="${c.id}" />
+          </div>
         </div>
+        ${c.doNotContact ? `<div class="dnc-warning">⚠️ This contact has opted out. Do not send emails or messages.</div>` : ''}
       </div>
 
       <div class="detail-panel">
@@ -85,10 +90,14 @@ export function renderContactDetail(id) {
 
       <div class="detail-panel">
         <div class="detail-panel-title">Activity</div>
-        <div class="email-quick-actions">
-          <button type="button" class="btn btn-ghost btn-sm" data-action="quick-log-email" data-log-type="email_sent" data-id="${c.id}">📤 Log Email Sent</button>
-          <button type="button" class="btn btn-ghost btn-sm" data-action="quick-log-email" data-log-type="email_received" data-id="${c.id}">📥 Log Reply Received</button>
-        </div>
+        ${c.doNotContact ? `
+          <div class="dnc-warning">⚠️ Do Not Contact is set for this contact — email logging is disabled.</div>
+        ` : `
+          <div class="email-quick-actions">
+            <button type="button" class="btn btn-ghost btn-sm" data-action="quick-log-email" data-log-type="email_sent" data-id="${c.id}">📤 Log Email Sent</button>
+            <button type="button" class="btn btn-ghost btn-sm" data-action="quick-log-email" data-log-type="email_received" data-id="${c.id}">📥 Log Reply Received</button>
+          </div>
+        `}
         <div class="activity-composer">
           <select id="activity-type">
             <option value="note">Note</option>

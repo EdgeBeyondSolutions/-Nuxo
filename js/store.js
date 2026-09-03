@@ -10,6 +10,7 @@ const DEFAULT_STAGES = [
   { name: 'Proposal', color: '#E08A1E' },
   { name: 'Negotiation', color: '#EC4899' },
   { name: 'Won', color: '#0E9F6E', isWon: true },
+  { name: 'Unresponsive', color: '#9CA3AF', isLost: true },
   { name: 'Lost', color: '#E23E4E', isLost: true },
 ];
 
@@ -32,6 +33,12 @@ export async function seedDefaultsIfNeeded(stages) {
 export function subscribeStages(cb) {
   const q = query(col('stages'), orderBy('order', 'asc'));
   return onSnapshot(q, (snap) => cb(snap.docs.map((d) => ({ id: d.id, ...d.data() }))));
+}
+
+export function createStage(data) {
+  return addDoc(col('stages'), {
+    name: '', color: '#64748B', order: 0, createdAt: serverTimestamp(), ...data,
+  });
 }
 
 export function subscribeContacts(cb) {
@@ -62,7 +69,7 @@ export function subscribeDeals(cb) {
 export function createContact(data) {
   return addDoc(col('contacts'), {
     firstName: '', lastName: '', email: '', phone: '', mobile: '', whatsapp: '',
-    source: '', stageId: '',
+    source: '', stageId: '', doNotContact: false,
     street: '', street2: '', city: '', state: '', country: '', postalCode: '',
     companyIds: [], estimatedValue: 0, createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
     ...data,

@@ -4,14 +4,14 @@ import {
 } from './firebase.js?v=1';
 import {
   setUid, seedDefaultsIfNeeded, subscribeStages, subscribeContacts, subscribeCompanies, subscribeActivities, subscribeTasks,
-  subscribeDeals, createDeal, updateDeal, deleteDeal,
+  subscribeDeals, createDeal, updateDeal, deleteDeal, createStage,
   createContact, updateContact, deleteContact, createCompany, updateCompany, deleteCompany,
   createActivity, createTask, updateTask, deleteTask,
-} from './store.js?v=6';
+} from './store.js?v=7';
 import { state, notify, onStateChange, stageById, contactById, companyById, dealFor, dealById, dealsForCompany, dealsFor } from './state.js?v=2';
 import { renderPipeline } from './views/pipeline.js?v=3';
 import { renderContactsTable } from './views/contacts.js?v=1';
-import { renderContactDetail } from './views/contactDetail.js?v=10';
+import { renderContactDetail } from './views/contactDetail.js?v=11';
 import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=13';
 import { renderTasks } from './views/tasksView.js?v=2';
 import { renderDashboard } from './views/dashboard.js?v=1';
@@ -122,11 +122,19 @@ function boot() {
     });
   }
 
+  let unresponsivePending = false;
   unsubscribers.push(subscribeStages(async (stages) => {
     state.stages = stages;
     if (!stagesLoaded) {
       stagesLoaded = true;
       await seedDefaultsIfNeeded(stages);
+    }
+    const hasUnresponsive = stages.some((s) => s.name === 'Unresponsive');
+    if (stages.length > 0 && !hasUnresponsive && !unresponsivePending) {
+      unresponsivePending = true;
+      const lostIdx = stages.findIndex((s) => s.isLost);
+      const order = lostIdx >= 0 ? stages[lostIdx].order : stages.length;
+      await createStage({ name: 'Unresponsive', color: '#9CA3AF', order, isLost: true });
     }
     render();
   }));
@@ -269,11 +277,14 @@ document.getElementById('view-body').addEventListener('click', (e) => {
     const contactId = linkCompany.dataset.id;
     const select = document.getElementById('company-select');
     const value = select.value;
-    if (!value) return;
+    if (!value) { showToast('Select a company first'); return; }
     if (value === '__new__') { openCompanyModal(contactId); return; }
     const contact = contactById(contactId);
+    if ((contact.companyIds || []).includes(value)) { showToast('Already linked'); return; }
     const ids = [...(contact.companyIds || []), value];
-    updateContact(contactId, { companyIds: ids });
+    updateContact(contactId, { companyIds: ids })
+      .then(() => { showToast('Company added'); render(); })
+      .catch((err) => showToast('Error: ' + err.message));
     return;
   }
 
@@ -283,9 +294,10 @@ document.getElementById('view-body').addEventListener('click', (e) => {
     const companyId = unlinkCompany.dataset.companyId;
     const contact = contactById(contactId);
     const ids = (contact.companyIds || []).filter((id) => id !== companyId);
-    updateContact(contactId, { companyIds: ids });
     const deal = dealFor(contactId, companyId);
-    if (deal) deleteDeal(deal.id);
+    Promise.all([updateContact(contactId, { companyIds: ids }), deal ? deleteDeal(deal.id) : Promise.resolve()])
+      .then(() => render())
+      .catch((err) => showToast('Error: ' + err.message));
     return;
   }
 
@@ -391,8 +403,13 @@ document.getElementById('view-body').addEventListener('change', (e) => {
   if (field) {
     const id = field.dataset.id;
     const key = field.dataset.field;
-    const value = key === 'estimatedValue' ? Number(field.value) || 0 : field.value;
-    updateContact(id, { [key]: value }).then(() => showToast('Saved'));
+    const value = field.type === 'checkbox' ? field.checked
+      : key === 'estimatedValue' ? Number(field.value) || 0
+      : field.value;
+    updateContact(id, { [key]: value }).then(() => {
+      showToast('Saved');
+      render();
+    });
     return;
   }
 
