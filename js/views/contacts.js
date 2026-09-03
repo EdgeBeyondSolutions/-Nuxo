@@ -1,5 +1,5 @@
-import { state, filteredContacts, stageById, companiesFor } from '../state.js?v=1';
-import { escapeHtml, formatCurrency, fullName } from '../util.js?v=1';
+import { state, filteredContacts, stageById, companiesFor } from '../state.js?v=2';
+import { escapeHtml, formatCurrency, fullName } from '../util.js?v=5';
 
 export function renderContactsTable() {
   let items = filteredContacts();

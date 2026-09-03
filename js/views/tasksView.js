@@ -1,5 +1,5 @@
-import { state, contactById } from '../state.js?v=1';
-import { escapeHtml, isOverdue, todayISO, fullName } from '../util.js?v=1';
+import { state, contactById } from '../state.js?v=2';
+import { escapeHtml, isOverdue, todayISO, fullName } from '../util.js?v=5';
 
 export function renderTasks() {
   const today = todayISO();

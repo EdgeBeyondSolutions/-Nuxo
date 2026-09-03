@@ -10,11 +10,11 @@ import {
 } from './store.js?v=7';
 import { state, notify, onStateChange, stageById, contactById, companyById, dealFor, dealById, dealsForCompany, dealsFor } from './state.js?v=2';
 import { renderPipeline } from './views/pipeline.js?v=3';
-import { renderContactsTable } from './views/contacts.js?v=1';
+import { renderContactsTable } from './views/contacts.js?v=2';
 import { renderContactDetail } from './views/contactDetail.js?v=11';
 import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=13';
-import { renderTasks } from './views/tasksView.js?v=2';
-import { renderDashboard } from './views/dashboard.js?v=1';
+import { renderTasks } from './views/tasksView.js?v=3';
+import { renderDashboard } from './views/dashboard.js?v=2';
 import { escapeHtml, todayISO } from './util.js?v=2';
 
 // ───────────────────────── Theme ─────────────────────────
