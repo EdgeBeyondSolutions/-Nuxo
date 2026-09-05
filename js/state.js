@@ -12,6 +12,8 @@ export const state = {
   sourceFilter: '',
   sortBy: 'createdAt',
   sortDir: 'desc',
+  companySortBy: 'name',
+  companySortDir: 'asc',
   selectedContactId: null,
   selectedCompanyId: null,
   taskFilter: 'pending',

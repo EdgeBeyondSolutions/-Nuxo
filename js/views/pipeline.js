@@ -1,4 +1,4 @@
-import { state, filteredContacts, companyById, dealFor } from '../state.js?v=2';
+import { state, filteredContacts, companyById, dealFor } from '../state.js?v=3';
 import { escapeHtml, formatCurrency, fullName } from '../util.js?v=1';
 
 export function renderPipeline() {

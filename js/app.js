@@ -8,11 +8,11 @@ import {
   createContact, updateContact, deleteContact, createCompany, updateCompany, deleteCompany,
   createActivity, createTask, updateTask, deleteTask,
 } from './store.js?v=7';
-import { state, notify, onStateChange, stageById, contactById, companyById, dealFor, dealById, dealsForCompany, dealsFor } from './state.js?v=2';
+import { state, notify, onStateChange, stageById, contactById, companyById, dealFor, dealById, dealsForCompany, dealsFor } from './state.js?v=3';
 import { renderPipeline } from './views/pipeline.js?v=3';
 import { renderContactsTable } from './views/contacts.js?v=2';
 import { renderContactDetail } from './views/contactDetail.js?v=11';
-import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=13';
+import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=14';
 import { renderTasks } from './views/tasksView.js?v=3';
 import { renderDashboard } from './views/dashboard.js?v=2';
 import { escapeHtml, todayISO } from './util.js?v=2';
@@ -372,8 +372,13 @@ document.getElementById('view-body').addEventListener('click', (e) => {
   const th = e.target.closest('th[data-sort]');
   if (th) {
     const key = th.dataset.sort;
-    if (state.sortBy === key) state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
-    else { state.sortBy = key; state.sortDir = 'asc'; }
+    if (state.view === 'companies') {
+      if (state.companySortBy === key) state.companySortDir = state.companySortDir === 'asc' ? 'desc' : 'asc';
+      else { state.companySortBy = key; state.companySortDir = 'asc'; }
+    } else {
+      if (state.sortBy === key) state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+      else { state.sortBy = key; state.sortDir = 'asc'; }
+    }
     render();
     return;
   }

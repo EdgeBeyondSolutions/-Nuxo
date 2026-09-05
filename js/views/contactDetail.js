@@ -1,4 +1,4 @@
-import { state, contactById, activitiesFor, tasksFor, companiesFor, dealFor } from '../state.js?v=2';
+import { state, contactById, activitiesFor, tasksFor, companiesFor, dealFor } from '../state.js?v=3';
 import { escapeHtml, formatDateTime, isOverdue, activityIcon, fullName, sourceOptions } from '../util.js?v=5';
 
 export function renderContactDetail(id) {

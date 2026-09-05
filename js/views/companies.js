@@ -1,8 +1,17 @@
-import { state, contactsForCompany, companyById, dealFor } from '../state.js?v=2';
+import { state, contactsForCompany, companyById, dealFor } from '../state.js?v=3';
 import { escapeHtml, fullName, industryOptions } from '../util.js?v=3';
 
 export function renderCompaniesTable() {
-  const items = state.companies.slice().sort((a, b) => a.name.localeCompare(b.name));
+  const items = state.companies.slice().sort((a, b) => {
+    const dir = state.companySortDir === 'asc' ? 1 : -1;
+    const key = state.companySortBy;
+    let av, bv;
+    if (key === 'contactCount') { av = contactsForCompany(a.id).length; bv = contactsForCompany(b.id).length; }
+    else if (key === 'createdAt') { av = a.createdAt?.toMillis?.() || 0; bv = b.createdAt?.toMillis?.() || 0; }
+    else { av = a[key] || ''; bv = b[key] || ''; }
+    if (typeof av === 'string') return av.localeCompare(bv) * dir;
+    return ((av || 0) - (bv || 0)) * dir;
+  });
 
   const toolbar = `
     <div class="table-toolbar">
@@ -28,9 +37,21 @@ export function renderCompaniesTable() {
     `;
   }).join('');
 
+  const cols = [
+    { key: 'name', label: 'Name' },
+    { key: 'website', label: 'Website' },
+    { key: 'phone', label: 'Phone' },
+    { key: 'email', label: 'Email' },
+    { key: 'contactCount', label: 'Contacts' },
+  ];
+  const th = (col) => {
+    const sorted = state.companySortBy === col.key;
+    return `<th data-sort="${col.key}" class="${sorted ? `sorted ${state.companySortDir}` : ''}">${col.label}</th>`;
+  };
+
   return toolbar + `
     <table class="data-table">
-      <thead><tr><th>Name</th><th>Website</th><th>Phone</th><th>Email</th><th>Contacts</th></tr></thead>
+      <thead><tr>${cols.map(th).join('')}</tr></thead>
       <tbody>${rows}</tbody>
     </table>
   `;
