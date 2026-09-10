@@ -413,7 +413,7 @@ document.getElementById('view-body').addEventListener('change', (e) => {
       : field.value;
     updateContact(id, { [key]: value }).then(() => {
       showToast('Saved');
-      render();
+      if (key === 'doNotContact') render();
     });
     return;
   }
