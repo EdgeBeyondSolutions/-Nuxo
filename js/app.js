@@ -201,6 +201,8 @@ function render() {
       ? '' : viewTitles[state.view];
 
   const body = document.getElementById('view-body');
+  const focus = captureFocus(body);
+
   switch (state.view) {
     case 'dashboard': body.innerHTML = renderDashboard(); break;
     case 'pipeline': body.innerHTML = renderPipeline(); attachDragAndDrop(); break;
@@ -212,8 +214,43 @@ function render() {
       break;
     case 'tasks': body.innerHTML = renderTasks(); break;
   }
+
+  restoreFocus(body, focus);
 }
 onStateChange(render);
+
+// Re-render replaces #view-body's innerHTML wholesale, which drops focus mid-edit
+// (e.g. a Firestore write resolving right after the user has already tabbed to the
+// next field). Capture which field was focused before the swap and refocus its
+// replacement afterward, including cursor position, so typing/Tab flow isn't broken.
+function focusSelector(el) {
+  if (el.id) return `#${CSS.escape(el.id)}`;
+  const attrs = ['data-field', 'data-company-field', 'data-task-field', 'data-deal-field'];
+  for (const attr of attrs) {
+    if (el.hasAttribute(attr)) {
+      const id = el.dataset.id;
+      return `[${attr}="${CSS.escape(el.getAttribute(attr))}"]${id ? `[data-id="${CSS.escape(id)}"]` : ''}`;
+    }
+  }
+  return null;
+}
+function captureFocus(body) {
+  const active = document.activeElement;
+  if (!active || !body.contains(active)) return null;
+  if (!['INPUT', 'SELECT', 'TEXTAREA'].includes(active.tagName)) return null;
+  const selector = focusSelector(active);
+  if (!selector) return null;
+  return { selector, selectionStart: active.selectionStart, selectionEnd: active.selectionEnd };
+}
+function restoreFocus(body, focus) {
+  if (!focus) return;
+  const el = body.querySelector(focus.selector);
+  if (!el) return;
+  el.focus();
+  if (typeof el.setSelectionRange === 'function' && focus.selectionStart != null) {
+    try { el.setSelectionRange(focus.selectionStart, focus.selectionEnd); } catch { /* not a text-selectable input */ }
+  }
+}
 
 // ───────────────────────── Body click delegation ─────────────────────────
 document.getElementById('view-body').addEventListener('click', (e) => {
