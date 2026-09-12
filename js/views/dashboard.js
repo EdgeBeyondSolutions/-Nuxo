@@ -1,4 +1,4 @@
-import { state } from '../state.js?v=3';
+import { state, pipelineEntriesFor } from '../state.js?v=4';
 import { escapeHtml, formatCurrency, todayISO } from '../util.js?v=5';
 
 export function renderDashboard() {
@@ -6,14 +6,15 @@ export function renderDashboard() {
   const monthStart = today.slice(0, 7);
   const total = state.contacts.length;
   const overdueTasks = state.tasks.filter((t) => !t.done && t.dueDate && t.dueDate < today).length;
+  const entries = pipelineEntriesFor(state.contacts);
   const wonStages = new Set(state.stages.filter((s) => s.isWon).map((s) => s.id));
-  const wonThisMonth = state.contacts.filter((c) => wonStages.has(c.stageId) && c.updatedAt?.toDate?.().toISOString().slice(0, 7) === monthStart);
-  const wonValue = wonThisMonth.reduce((sum, c) => sum + (Number(c.estimatedValue) || 0), 0);
-  const pipelineValue = state.contacts
-    .filter((c) => !state.stages.find((s) => s.id === c.stageId)?.isWon && !state.stages.find((s) => s.id === c.stageId)?.isLost)
-    .reduce((sum, c) => sum + (Number(c.estimatedValue) || 0), 0);
+  const wonThisMonth = entries.filter((e) => wonStages.has(e.stageId) && e.updatedAt?.toDate?.().toISOString().slice(0, 7) === monthStart);
+  const wonValue = wonThisMonth.reduce((sum, e) => sum + (Number(e.value) || 0), 0);
+  const pipelineValue = entries
+    .filter((e) => !state.stages.find((s) => s.id === e.stageId)?.isWon && !state.stages.find((s) => s.id === e.stageId)?.isLost)
+    .reduce((sum, e) => sum + (Number(e.value) || 0), 0);
 
-  const maxCount = Math.max(1, ...state.stages.map((s) => state.contacts.filter((c) => c.stageId === s.id).length));
+  const maxCount = Math.max(1, ...state.stages.map((s) => entries.filter((e) => e.stageId === s.id).length));
 
   return `
     <div class="stat-grid">
@@ -26,7 +27,7 @@ export function renderDashboard() {
     <div class="section-heading">Contacts by Stage</div>
     <div class="stage-bars">
       ${state.stages.map((s) => {
-        const count = state.contacts.filter((c) => c.stageId === s.id).length;
+        const count = entries.filter((e) => e.stageId === s.id).length;
         const pct = Math.round((count / maxCount) * 100);
         return `
           <div class="stage-bar-row">

@@ -8,13 +8,13 @@ import {
   createContact, updateContact, deleteContact, createCompany, updateCompany, deleteCompany,
   createActivity, createTask, updateTask, deleteTask,
 } from './store.js?v=7';
-import { state, notify, onStateChange, stageById, contactById, companyById, dealFor, dealById, dealsForCompany, dealsFor } from './state.js?v=3';
-import { renderPipeline } from './views/pipeline.js?v=3';
+import { state, notify, onStateChange, stageById, contactById, companyById, dealFor, dealById, dealsForCompany, dealsFor, pipelineEntriesFor } from './state.js?v=4';
+import { renderPipeline } from './views/pipeline.js?v=4';
 import { renderContactsTable } from './views/contacts.js?v=2';
 import { renderContactDetail } from './views/contactDetail.js?v=11';
 import { renderCompaniesTable, renderCompanyDetail } from './views/companies.js?v=14';
 import { renderTasks } from './views/tasksView.js?v=3';
-import { renderDashboard } from './views/dashboard.js?v=2';
+import { renderDashboard } from './views/dashboard.js?v=3';
 import { escapeHtml, todayISO } from './util.js?v=2';
 
 // ───────────────────────── Theme ─────────────────────────
@@ -188,7 +188,7 @@ function render() {
 
   const today = todayISO();
   const openStageIds = new Set(state.stages.filter((s) => !s.isWon && !s.isLost).map((s) => s.id));
-  document.getElementById('count-pipeline').textContent = state.contacts.filter((c) => openStageIds.has(c.stageId)).length;
+  document.getElementById('count-pipeline').textContent = pipelineEntriesFor(state.contacts).filter((e) => openStageIds.has(e.stageId)).length;
   document.getElementById('count-contacts').textContent = state.contacts.length;
   document.getElementById('count-companies').textContent = state.companies.length;
   document.getElementById('count-tasks').textContent = state.tasks.filter((t) => !t.done && t.dueDate && t.dueDate <= today).length;

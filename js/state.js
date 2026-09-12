@@ -74,6 +74,24 @@ export function dealsForCompany(companyId) {
   return state.deals.filter((d) => d.companyId === companyId);
 }
 
+// One pipeline entry per contact-without-company, or per contact+company deal.
+// The effective stage/value/updatedAt for pipeline purposes lives on the deal
+// once a contact is linked to a company — never on the contact document itself.
+export function pipelineEntriesFor(contacts) {
+  return contacts.flatMap((c) => {
+    const companyIds = c.companyIds || [];
+    if (companyIds.length === 0) {
+      return [{ contact: c, company: null, stageId: c.stageId, value: c.estimatedValue, updatedAt: c.updatedAt, dealId: null }];
+    }
+    return companyIds.map((companyId) => {
+      const deal = dealFor(c.id, companyId);
+      return deal
+        ? { contact: c, company: companyById(companyId), stageId: deal.stageId, value: deal.estimatedValue, updatedAt: deal.updatedAt, dealId: deal.id }
+        : null;
+    }).filter(Boolean);
+  });
+}
+
 export function filteredContacts() {
   const term = state.search.trim().toLowerCase();
   return state.contacts.filter((c) => {

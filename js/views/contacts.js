@@ -1,4 +1,4 @@
-import { state, filteredContacts, stageById, companiesFor } from '../state.js?v=3';
+import { state, filteredContacts, stageById, companiesFor } from '../state.js?v=4';
 import { escapeHtml, formatCurrency, fullName } from '../util.js?v=5';
 
 export function renderContactsTable() {

@@ -1,4 +1,4 @@
-import { state, contactById } from '../state.js?v=3';
+import { state, contactById } from '../state.js?v=4';
 import { escapeHtml, isOverdue, todayISO, fullName } from '../util.js?v=5';
 
 export function renderTasks() {

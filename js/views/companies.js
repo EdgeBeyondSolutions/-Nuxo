@@ -1,4 +1,4 @@
-import { state, contactsForCompany, companyById, dealFor } from '../state.js?v=3';
+import { state, contactsForCompany, companyById, dealFor } from '../state.js?v=4';
 import { escapeHtml, fullName, industryOptions } from '../util.js?v=3';
 
 export function renderCompaniesTable() {

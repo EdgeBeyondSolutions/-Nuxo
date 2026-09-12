@@ -1,25 +1,11 @@
-import { state, filteredContacts, companyById, dealFor } from '../state.js?v=3';
+import { state, filteredContacts, pipelineEntriesFor } from '../state.js?v=4';
 import { escapeHtml, formatCurrency, fullName } from '../util.js?v=1';
 
 export function renderPipeline() {
   if (state.stages.length === 0) {
     return `<div class="empty-state"><div class="empty-state-icon">🗂</div><div class="empty-state-title">Setting up your pipeline…</div></div>`;
   }
-  const contacts = filteredContacts();
-
-  // Build one pipeline entry per contact (no companies) or per contact+company deal.
-  const entries = contacts.flatMap((c) => {
-    const companyIds = c.companyIds || [];
-    if (companyIds.length === 0) {
-      return [{ contact: c, company: null, stageId: c.stageId, value: c.estimatedValue, dealId: null }];
-    }
-    return companyIds.map((companyId) => {
-      const deal = dealFor(c.id, companyId);
-      return deal
-        ? { contact: c, company: companyById(companyId), stageId: deal.stageId, value: deal.estimatedValue, dealId: deal.id }
-        : null;
-    }).filter(Boolean);
-  });
+  const entries = pipelineEntriesFor(filteredContacts());
 
   const columns = state.stages.map((stage) => {
     const items = entries.filter((e) => e.stageId === stage.id);
